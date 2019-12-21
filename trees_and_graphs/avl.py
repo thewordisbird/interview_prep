@@ -12,6 +12,7 @@ class Node:
         self.right_child = None
         self.parent = None
         self.height = 0
+        self.balance_factor = 0
 
 class BST:
     '''Binary Search Tree class contains methods to provide public functionality of 
@@ -57,32 +58,57 @@ class BST:
                 self._put(new_node, current_node.right_child)
 
         # Set balance factor on unwind:
-        balance_factor = self.check_balance_factor(current_node)
+        #if current_node is None:
+        #    print("NONE")
+        #balance_factor = self.update_balance_factor(current_node)
 
         # Rebalance if neccessary:
-        if balance_factor > 1:
-            self.rebalance(current_node)
+        #if balance_factor > 1:
+        #    self.rebalance(current_node)
 
-    def check_balance_factor(self, node):
-        '''calculates and updates the balance factor of a node.'''
-        # Calculate height and balance factor
+    def update_balance_factor(self, node):
         if node.left_child and node.right_child:
-            node.height = 1 + max(node.left_child.height, node.right_child.height)
-            balance_factor = abs(node.left_child.height - node.right_child.height)
-        elif  node.left_child:
-            node.height = 1 + node.left_child.height
-            balance_factor = 1 + node.left_child.height
-        elif node.right_child:
-            node.right_child.height
-            balance_factor = 1 + node.right_child.height
-        else:
-            balance_factor = 0
+            node.balance_factor = abs(node.left_child.balance_factor - node.right_child.balance_factor)        
         
-        return balance_factor
+        elif node.left_child:
+            node.balance_factor = abs(node.left_child.balance_factor - -1)     
+
+        elif node.right_child:
+            node.balance_factor = abs(-1 - node.right_child.balance_factor)        
+   
+        return node.balance_factor
 
     def rebalance(self, node):
+        '''Rebalance the tree'''
+        # Case 1. Left branch is heavy.
+        if node.left_child.height > node.right_child.height:
+            # Case 1a. Nodes left child is left heavy - right rotation about node
+            if node.left_child.left_child.height >= node.left_child.right_child.height:
+                self.right_rotation(node)
+
+            # Case 1b. Nodes left child is right heacy - Left rotation about left child,
+            #   followed by right rotation about node
+            else:
+                self.left_rotation(node.left_child)
+                self.right_rotation(node)
+        
+        # Case 2. Right branch is heavy
+        else:
+            # Case 2a. Nodes right child is right heavy - left rotation about node
+            if node.right_child.right_child.height >= node.right_child.left_child.height:
+                self.left_rotation(node)
+            
+            # Case 2b. Nodes right child is left heavy - right rotation about right child,
+            #   followed by left rotation about node
+            else:
+                self.right_rotation(node.right_child)
+                self.left_rotation(node)
+
+    def left_rotation(self, node):
         pass
 
+    def right_rotation(self, node):
+        pass
         
 
         
