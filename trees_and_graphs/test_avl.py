@@ -34,7 +34,7 @@ def test_bst_construction():
 
 class TestPut:
 
-    @pytest.mark.parametrize('new_node, parent, root_bf', 
+    @pytest.mark.parametrize('new_node, parent, root_height', 
                                 [
                                     (Node(3, 'B'), 'A', 1),
                                     (Node(9, 'C'), 'A', 1),
@@ -42,11 +42,11 @@ class TestPut:
                                     (Node(4, 'E'), 'B', 2),
                                     (Node(10, 'F'), 'C', 2)
                                 ])
-    def test__put(self, rooted_bst, new_node, parent, root_bf):
+    def test__put(self, rooted_bst, new_node, parent, root_height):
         bst = rooted_bst
         bst._put(new_node, bst.root)
         assert new_node.parent.value == parent
-        assert rooted_bst.root.balance_factor == root_bf
+        assert rooted_bst.root.height == root_height
 
     def test_put_root(self, empty_bst):
         assert empty_bst.root == None
@@ -67,38 +67,37 @@ class TestPut:
         assert empty_bst.size == size
 
 class TestBalance:
-
     right_heavy_right_child_right_heavy_bst = [
-                (64, 'A'), (32, 'B'), (96, 'C'), (16, 'D'), (48, 'E'),
-                (80, 'F'), (112, 'G'), (88, 'H'), (104, 'I'), (120, 'J'),
-                (116, 'K')
+                (64, 'A', 4), (32, 'B', 1), (96, 'C', 3), (16, 'D', 0), (48, 'E', 0),
+                (80, 'F', 1), (112, 'G', 2), (88, 'H', 0), (104, 'I', 0), (120, 'J', 1),
+                (116, 'K', 0)
             ]
     
     right_heavy_right_child_left_heavy_bst = [
-                (64, 'A'), (32, 'B'), (96, 'C'), (16, 'D'), (48, 'E'),
-                (80, 'F'), (112, 'G'), (72, 'H'), (88, 'I'), (120, 'J'),
-                (84, 'K')
+                (64, 'A', 4), (32, 'B', 1), (96, 'C', 3), (16, 'D', 0), (48, 'E', 0),
+                (80, 'F', 2), (112, 'G', 1), (72, 'H', 0), (88, 'I', 1), (120, 'J', 0),
+                (84, 'K', 0)
             ]
-  
+
 
 
     left_heavy_left_child_left_heavy_bst = [
-                (64, 'A'), (32, 'B'), (96, 'C'), (16, 'D'), (48, 'E'),
-                (80, 'F'), (112, 'G'), (8, 'H'), (24, 'I'), (56, 'J'),
-                (20, 'K')
+                (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 2), (48, 'E', 1),
+                (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (24, 'I', 1), (56, 'J', 0),
+                (20, 'K', 0)
             ]
 
 
     left_heavy_left_child_right_heavy_bst = [
-                (64, 'A'), (32, 'B'), (96, 'C'), (16, 'D'), (48, 'E'),
-                (80, 'F'), (112, 'G'), (8, 'H'), (40, 'I'), (56, 'J'),
-                (52, 'K')
+                (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 1), (48, 'E', 2),
+                (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (40, 'I', 0), (56, 'J', 1),
+                (52, 'K', 0)
             ]
 
-    def build_unbalanced_tree(self, node_list):
-        bst = BST()
+    def build_unbalanced_tree(self, bst, node_list):
         for node in node_list:
             new_node = Node(node[0], node[1])
+            new_node.height = node[2]
             if bst.root == None:
                 bst.root = new_node
             else:
@@ -119,10 +118,35 @@ class TestBalance:
                         else:
                             current_node = current_node.right_child
         return bst
+    
+    @pytest.mark.parametrize('parent_node, parent_height, left_node, left_node_height, right_node, right_node_height',
+                        [
+                            (Node(50, 'A'), 6, Node(25, 'B'), 5, Node(75, 'C'), 5),
+                            (Node(50, 'A'), 6, Node(25, 'B'), 3, Node(75, 'C'), 5),
+                            (Node(50, 'A'), 6, Node(25, 'B'), 5, Node(75, 'C'), 3),
+                            (Node(50, 'A'), 6, None, None, Node(75, 'C'), 5),
+                            (Node(50, 'A'), 6, Node(25, 'B'), 5, None, None)
+                        ])
+    def test_update_height(self, parent_node, parent_height, left_node, left_node_height, right_node, right_node_height):
+        bst = BST()
+        if left_node:
+            left_node.height = left_node_height
+        if right_node:
+            right_node.height = right_node_height
+        
+        parent_node.left_child = left_node
+        parent_node.right_child = right_node
+
+        bst.root = parent_node
+
+        bst.update_height(bst.root)
+
+        assert bst.root.height == parent_height
+
 
     
 
-    @pytest.mark.parametrize('parent_node, parent_bf, left_node, left_node_bf, right_node, right_node_bf',
+    @pytest.mark.parametrize('parent_node, parent_bf, left_node, left_node_height, right_node, right_node_height',
                         [
                             (Node(50, 'A'), 0, Node(25, 'B'), 5, Node(75, 'C'), 5),
                             (Node(50, 'A'), 2, Node(25, 'B'), 3, Node(75, 'C'), 5),
@@ -130,18 +154,19 @@ class TestBalance:
                             (Node(50, 'A'), 6, None, None, Node(75, 'C'), 5),
                             (Node(50, 'A'), 6, Node(25, 'B'), 5, None, None)
                         ])
-    def test_update_balance_factor(self, parent_node, parent_bf, left_node, left_node_bf, right_node, right_node_bf):
+    def test_update_balance_factor(self, parent_node, parent_bf, left_node, left_node_height, right_node, right_node_height):
         bst = BST()
-        bst.root = parent_node
+        if left_node:
+            left_node.height = left_node_height
+        if right_node:
+            right_node.height = right_node_height
+        
         parent_node.left_child = left_node
         parent_node.right_child = right_node
 
-        if left_node:
-            left_node.balance_factor = left_node_bf
-        if right_node:
-            right_node.balance_factor = right_node_bf
+        bst.root = parent_node
 
-        assert bst.update_balance_factor(bst.root) == parent_bf
+        assert bst.get_balance_factor(bst.root) == parent_bf
 
         
     def populate_bst(self, bst, node_list):
@@ -160,10 +185,31 @@ class TestBalance:
         # All test trees are unbalacned about root.
         bst = BST()
         self.populate_bst(bst, node_list)
-        print(bst.size)
-        #bst.rebalance(bst.root)
-        #assert abs(bst.root.left_child.height - bst.root.right_child.height) <= 1
-        assert 1 == 1
+        bst.rebalance(bst.root)
+        assert abs(bst.root.left_child.height - bst.root.right_child.height) <= 1
+        
+
+    def test_left_rotation(self):
+        # NOTE: SHOULD COME UP WITH TEST TO TEST NON ROOT UN BALANCE
+        # All test trees are unbalanced about root
+        bst = BST()
+        self.build_unbalanced_tree(bst, self.right_heavy_right_child_right_heavy_bst)
+        bst.left_rotation(bst.root)
+        print(f'lc-height: {bst.root.left_child.height}, rc-height: {bst.root.right_child.height}')
+        assert bst.root.left_child.height - bst.root.right_child.height == 0
+
+    def test_right_rotation(self):
+        # NOTE: SHOULD COME UP WITH TEST TO TEST NON ROOT UN BALANCE
+        # All test trees are unbalanced about root
+        bst = BST()
+        self.build_unbalanced_tree(bst, self.left_heavy_left_child_left_heavy_bst)
+        bst.right_rotation(bst.root)
+        print(f'lc-height: {bst.root.left_child.height}, rc-height: {bst.root.right_child.height}')
+        assert bst.root.left_child.height - bst.root.right_child.height == 0
+
+
+
+
 
 
 
