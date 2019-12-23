@@ -88,7 +88,7 @@ class TestBalance:
                 (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (24, 'I', 1), (56, 'J', 0),
                 (20, 'K', 0)
             ]
-    rebalanced_left_heavy_left_child_left_heavy_node_list = ['B', 'D', 'A', 'H', 'I', 'E', 'C', 'K', 'J', 'F', 'G']
+    rebalanced_left_heavy_left_child_left_heavy_node_list = ['B', 'D', 'A', 'H', 'I', 'E', 'C', 'K', 'J', 'F', !!'G']
 
     left_heavy_left_child_right_heavy_bst = [
                 (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 1), (48, 'E', 2),
