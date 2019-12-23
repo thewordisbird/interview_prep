@@ -1,4 +1,5 @@
 # Binary Search Tree with AVL balancing 
+from collections import deque
 
 class Node:
     '''Node properties for a node instance in the AVL BST'''
@@ -74,7 +75,7 @@ class BST:
     def update_height(self, node):
         
         if node.left_child and node.right_child:
-            print(node.left_child.height, node.right_child.height)
+            #print(node.left_child.height, node.right_child.height)
             node.height = 1 + max(node.left_child.height, node.right_child.height)
         elif node.left_child:
             node.height = 1 + node.left_child.height
@@ -176,6 +177,26 @@ class BST:
             node.height = 1 + node.right_child.height
 
         new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
+
+    def breadth_first_traversal(self):
+        nodes = []
+        q = deque()
+        q.append(self.root)
+        
+        while q:
+            current_node = q.popleft()
+            if current_node.left_child:
+                q.append(current_node.left_child)
+            if current_node.right_child:
+                q.append(current_node.right_child)
+            
+            #print(f'Key: {current_node.key}, Value: {current_node.value}')
+            nodes.append(current_node.value)
+
+        return nodes
+
+    
+
         
 
         

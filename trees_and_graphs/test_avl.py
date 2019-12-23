@@ -72,6 +72,8 @@ class TestBalance:
                 (80, 'F', 1), (112, 'G', 2), (88, 'H', 0), (104, 'I', 0), (120, 'J', 1),
                 (116, 'K', 0)
             ]
+
+    rebalanced_right_heavy_right_child_right_heavy_node_list = ['C', 'A', 'G', 'B', 'F', 'I', 'J', 'D', 'E', 'H', 'K']
     
     right_heavy_right_child_left_heavy_bst = [
                 (64, 'A', 4), (32, 'B', 1), (96, 'C', 3), (16, 'D', 0), (48, 'E', 0),
@@ -79,20 +81,22 @@ class TestBalance:
                 (84, 'K', 0)
             ]
 
-
+    rebalanced_right_heavy_right_child_left_heavy_node_list = ['F', 'A', 'C', 'B' ,'H', 'I', 'G', 'D', 'E', 'K', 'J']
 
     left_heavy_left_child_left_heavy_bst = [
                 (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 2), (48, 'E', 1),
                 (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (24, 'I', 1), (56, 'J', 0),
                 (20, 'K', 0)
             ]
-
+    rebalanced_left_heavy_left_child_left_heavy_node_list = ['B', 'D', 'A', 'H', 'I', 'E', 'C', 'K', 'J', 'F', 'G']
 
     left_heavy_left_child_right_heavy_bst = [
                 (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 1), (48, 'E', 2),
                 (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (40, 'I', 0), (56, 'J', 1),
                 (52, 'K', 0)
             ]
+
+    rebalanced_left_heavy_left_child_right_heavy_node_list = ['E', 'B', 'A', 'D', 'I', 'J', 'C', 'H', 'K', 'F', 'G']
 
     def build_unbalanced_tree(self, bst, node_list):
         for node in node_list:
@@ -170,24 +174,28 @@ class TestBalance:
 
         
     def populate_bst(self, bst, node_list):
+        print(node_list)
         for node in node_list:
             #print(f'adding: {node[1]}')
             bst.put(node[0], node[1])
+        bst.breadth_first_traversal()
     
-    @pytest.mark.parametrize('node_list',
+    @pytest.mark.parametrize('node_list, rebalanced_node_list',
                         [
-                            (right_heavy_right_child_right_heavy_bst),
-                            (right_heavy_right_child_left_heavy_bst),
-                            (left_heavy_left_child_left_heavy_bst),
-                            (left_heavy_left_child_right_heavy_bst)
+                            (right_heavy_right_child_right_heavy_bst, rebalanced_right_heavy_right_child_right_heavy_node_list),
+                            (right_heavy_right_child_left_heavy_bst, rebalanced_right_heavy_right_child_left_heavy_node_list),
+                            (left_heavy_left_child_left_heavy_bst, rebalanced_left_heavy_left_child_left_heavy_node_list),
+                            (left_heavy_left_child_right_heavy_bst, rebalanced_left_heavy_left_child_right_heavy_node_list)
                         ])
-    def test_rebalance(self, node_list):
+    def test_rebalance(self, node_list, rebalanced_node_list):
         # All test trees are unbalacned about root.
         bst = BST()
-        self.populate_bst(bst, node_list)
+        self.build_unbalanced_tree(bst, node_list)      
+        #bst.breadth_first_traversal()  
         bst.rebalance(bst.root)
-        assert abs(bst.root.left_child.height - bst.root.right_child.height) <= 1
-        
+        #print(bst.breadth_first_traversal())
+        #assert abs(bst.root.left_child.height - bst.root.right_child.height) <= 1
+        assert bst.breadth_first_traversal() == rebalanced_node_list
 
     def test_left_rotation(self):
         # NOTE: SHOULD COME UP WITH TEST TO TEST NON ROOT UN BALANCE
@@ -207,6 +215,7 @@ class TestBalance:
         print(f'lc-height: {bst.root.left_child.height}, rc-height: {bst.root.right_child.height}')
         assert bst.root.left_child.height - bst.root.right_child.height == 0
 
+    
 
 
 
