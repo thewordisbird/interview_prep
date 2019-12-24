@@ -14,8 +14,6 @@ def test_node_construction():
     #assert n.height == 0
 
 
-
-
 # Tests for BST Class
 @pytest.fixture(scope='class')
 def empty_bst():
@@ -26,14 +24,64 @@ def rooted_bst():
     bst = BST()
     bst.put(6, 'A')
     return bst
-    
+
+@pytest.fixture(scope='function')
+def populated_bst():
+    bst = BST()
+    nodes = [
+                (70, 'A'), (31, 'B'), (93, 'C'), (14, 'D'), (73, 'E'), 
+                (94, 'F'), (23, 'G'), (71, 'H'), (80, 'I'), (96, 'J'),
+                (75, 'K'), (85, 'L'), (95, 'M'), (74, 'N'), (76, 'O'),
+                (20, 'P'), (19, 'Q')
+            ]
+    populate_bst(bst, nodes)
+    return bst
+
+def populate_bst(bst, node_list):
+        print(node_list)
+        for node in node_list:
+            print(f'Adding Key: {node[0]}, Value: {node[1]}')
+            bst.put(node[0], node[1])
+        bst.breadth_first_traversal()
+
 def test_bst_construction():
     bst = BST()
     assert bst.root == None
     assert bst.size == 0
 
-class TestPut:
+right_heavy_right_child_right_heavy_bst = [
+                (64, 'A', 4), (32, 'B', 1), (96, 'C', 3), (16, 'D', 0), (48, 'E', 0),
+                (80, 'F', 1), (112, 'G', 2), (88, 'H', 0), (104, 'I', 0), (120, 'J', 1),
+                (116, 'K', 0)
+            ]
 
+rebalanced_right_heavy_right_child_right_heavy_node_list = ['C', 'A', 'G', 'B', 'F', 'I', 'J', 'D', 'E', 'H', 'K']
+
+right_heavy_right_child_left_heavy_bst = [
+            (64, 'A', 4), (32, 'B', 1), (96, 'C', 3), (16, 'D', 0), (48, 'E', 0),
+            (80, 'F', 2), (112, 'G', 1), (72, 'H', 0), (88, 'I', 1), (120, 'J', 0),
+            (84, 'K', 0)
+        ]
+
+rebalanced_right_heavy_right_child_left_heavy_node_list = ['F', 'A', 'C', 'B' ,'H', 'I', 'G', 'D', 'E', 'K', 'J']
+
+left_heavy_left_child_left_heavy_bst = [
+            (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 2), (48, 'E', 1),
+            (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (24, 'I', 1), (56, 'J', 0),
+            (20, 'K', 0)
+        ]
+rebalanced_left_heavy_left_child_left_heavy_node_list = ['B', 'D', 'A', 'H', 'I', 'E', 'C', 'K', 'J', 'F', 'G']
+
+left_heavy_left_child_right_heavy_bst = [
+            (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 1), (48, 'E', 2),
+            (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (40, 'I', 0), (56, 'J', 1),
+            (52, 'K', 0)
+        ]
+
+rebalanced_left_heavy_left_child_right_heavy_node_list = ['E', 'B', 'A', 'D', 'I', 'J', 'C', 'H', 'K', 'F', 'G']
+
+
+class TestPut:
     @pytest.mark.parametrize('new_node, parent, root_height', 
                                 [
                                     (Node(3, 'B'), 'A', 1),
@@ -55,49 +103,22 @@ class TestPut:
         assert empty_bst.root != None
         assert empty_bst.size == 1
 
-    @pytest.mark.parametrize('key, value, size', 
-                                [
-                                    (3, 'B', 2),
-                                    (9, 'C', 3),
-                                    (2, 'D', 4),
-                                    (4, 'E', 5)
-                                ])
-    def test_put(self, empty_bst, key, value, size):
-        empty_bst.put(key, value)
-        assert empty_bst.size == size
+    @pytest.mark.parametrize('node_list, rebalanced_node_list',
+                        [
+                            (right_heavy_right_child_right_heavy_bst, rebalanced_right_heavy_right_child_right_heavy_node_list),
+                            (right_heavy_right_child_left_heavy_bst, rebalanced_right_heavy_right_child_left_heavy_node_list),
+                            (left_heavy_left_child_left_heavy_bst, rebalanced_left_heavy_left_child_left_heavy_node_list),
+                            (left_heavy_left_child_right_heavy_bst, rebalanced_left_heavy_left_child_right_heavy_node_list)
+                        ])
+    def test_put(self, node_list, rebalanced_node_list):
+        bst = BST()
+        for node in node_list:
+            bst.put(node[0], node[1])
+        assert bst.breadth_first_traversal() == rebalanced_node_list
+
 
 class TestBalance:
-    right_heavy_right_child_right_heavy_bst = [
-                (64, 'A', 4), (32, 'B', 1), (96, 'C', 3), (16, 'D', 0), (48, 'E', 0),
-                (80, 'F', 1), (112, 'G', 2), (88, 'H', 0), (104, 'I', 0), (120, 'J', 1),
-                (116, 'K', 0)
-            ]
-
-    rebalanced_right_heavy_right_child_right_heavy_node_list = ['C', 'A', 'G', 'B', 'F', 'I', 'J', 'D', 'E', 'H', 'K']
     
-    right_heavy_right_child_left_heavy_bst = [
-                (64, 'A', 4), (32, 'B', 1), (96, 'C', 3), (16, 'D', 0), (48, 'E', 0),
-                (80, 'F', 2), (112, 'G', 1), (72, 'H', 0), (88, 'I', 1), (120, 'J', 0),
-                (84, 'K', 0)
-            ]
-
-    rebalanced_right_heavy_right_child_left_heavy_node_list = ['F', 'A', 'C', 'B' ,'H', 'I', 'G', 'D', 'E', 'K', 'J']
-
-    left_heavy_left_child_left_heavy_bst = [
-                (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 2), (48, 'E', 1),
-                (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (24, 'I', 1), (56, 'J', 0),
-                (20, 'K', 0)
-            ]
-    rebalanced_left_heavy_left_child_left_heavy_node_list = ['B', 'D', 'A', 'H', 'I', 'E', 'C', 'K', 'J', 'F', !!'G']
-
-    left_heavy_left_child_right_heavy_bst = [
-                (64, 'A', 4), (32, 'B', 3), (96, 'C', 1), (16, 'D', 1), (48, 'E', 2),
-                (80, 'F', 0), (112, 'G', 0), (8, 'H', 0), (40, 'I', 0), (56, 'J', 1),
-                (52, 'K', 0)
-            ]
-
-    rebalanced_left_heavy_left_child_right_heavy_node_list = ['E', 'B', 'A', 'D', 'I', 'J', 'C', 'H', 'K', 'F', 'G']
-
     def build_unbalanced_tree(self, bst, node_list):
         for node in node_list:
             new_node = Node(node[0], node[1])
@@ -147,9 +168,6 @@ class TestBalance:
 
         assert bst.root.height == parent_height
 
-
-    
-
     @pytest.mark.parametrize('parent_node, parent_bf, left_node, left_node_height, right_node, right_node_height',
                         [
                             (Node(50, 'A'), 0, Node(25, 'B'), 5, Node(75, 'C'), 5),
@@ -173,12 +191,7 @@ class TestBalance:
         assert bst.get_balance_factor(bst.root) == parent_bf
 
         
-    def populate_bst(self, bst, node_list):
-        print(node_list)
-        for node in node_list:
-            #print(f'adding: {node[1]}')
-            bst.put(node[0], node[1])
-        bst.breadth_first_traversal()
+    
     
     @pytest.mark.parametrize('node_list, rebalanced_node_list',
                         [
@@ -201,7 +214,7 @@ class TestBalance:
         # NOTE: SHOULD COME UP WITH TEST TO TEST NON ROOT UN BALANCE
         # All test trees are unbalanced about root
         bst = BST()
-        self.build_unbalanced_tree(bst, self.right_heavy_right_child_right_heavy_bst)
+        self.build_unbalanced_tree(bst, right_heavy_right_child_right_heavy_bst)
         bst.left_rotation(bst.root)
         print(f'lc-height: {bst.root.left_child.height}, rc-height: {bst.root.right_child.height}')
         assert bst.root.left_child.height - bst.root.right_child.height == 0
@@ -210,12 +223,49 @@ class TestBalance:
         # NOTE: SHOULD COME UP WITH TEST TO TEST NON ROOT UN BALANCE
         # All test trees are unbalanced about root
         bst = BST()
-        self.build_unbalanced_tree(bst, self.left_heavy_left_child_left_heavy_bst)
+        self.build_unbalanced_tree(bst, left_heavy_left_child_left_heavy_bst)
         bst.right_rotation(bst.root)
         print(f'lc-height: {bst.root.left_child.height}, rc-height: {bst.root.right_child.height}')
         assert bst.root.left_child.height - bst.root.right_child.height == 0
 
     
+class TestDelete:
+    @pytest.mark.parametrize('sub_root_key, min_node_key',
+                            [
+                                (70, 14)
+                            ])
+    def test_find_min(self, populated_bst, sub_root_key, min_node_key):
+        bst = populated_bst
+        sub_root_node = bst.get(sub_root_key)
+        assert bst.find_min().key == min_node_key
+
+    def test_find_successor(self):
+        # Single Item Tree
+        # Leaf Node (right & left)
+        # Node with both children
+        # Node with single child (right & left)
+        pass
+
+    def test_splice(self):
+        # Leaf Node
+        # Single Child (right & left)
+        pass
+
+    def test_insert_successor(self):
+        # Node has both children
+        pass
+
+    def test_delete_key_not_found(self):
+        # Key Not found
+        pass
+
+    def test_delete(self):
+        # Root Node
+        # Leaf Node (left & right)
+        # Node with both children
+        # Node with single child (left & right)
+        pass
+
 
 
 
