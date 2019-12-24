@@ -45,6 +45,7 @@ class BST:
             Note: if node keys are equal, the node will be a left child of the already
             placed node'''
         # Determine path:
+        print(f'Comparing {new_node.key} to {current_node.key}')
         if new_node.key <= current_node.key:
             if current_node.left_child == None:
                 new_node.parent = current_node
@@ -93,46 +94,62 @@ class BST:
    
         return balance_factor
 
+
     def rebalance(self, node):
-        # NEEDS TO HANDLE NONE CHILDREN!
-        '''Rebalance the tree'''
+        # Node has both children:
         if node.left_child and node.right_child:
-            node_left_height = node.left_child.height
-            node_right_height = node.right_child.height
-        elif node.left_child:
-            node_left_height = node.left_child.height
-            node_right_height = -1
-        elif node.right_child:
-            node_left_height = -1
-            node_right_height = node.right_child.height
-        else:
-            node_left_height = -1
-            node_right_height = -1
-        
+            # Case 1. Left branch is heavy
+            if node.left_child.height > node.right_child.height:
+                # Node's left child has both children
+                if node.left_child.left_child and node.left_child.right_child:
+                    # Case 1a. Nodes left child is left heavy - right rotation about node
+                    if node.left_child.left_child.height >= node.left_child.right_child.height:
+                        self.right_rotation(node)
 
-        # Case 1. Left branch is heavy.
-        if node_left_height > node_right_height:
-            # Case 1a. Nodes left child is left heavy - right rotation about node
-            if node.left_child.left_child.height >= node.left_child.right_child.height:
-                self.right_rotation(node)
+                    # Case 1b. Nodes left child is right heavy - Left rotation about left child,
+                    #   followed by right rotation about node
+                    else:
+                        self.left_rotation(node.left_child)
+                        self.right_rotation(node)
 
-            # Case 1b. Nodes left child is right heacy - Left rotation about left child,
-            #   followed by right rotation about node
-            else:
-                self.left_rotation(node.left_child)
-                self.right_rotation(node)
-        
-        # Case 2. Right branch is heavy
-        else:
-            # Case 2a. Nodes right child is right heavy - left rotation about node
-            if node.right_child.right_child.height >= node.right_child.left_child.height:
-                self.left_rotation(node)
+                # Node's left child has only left child
+                # Case 1a. Nodes left child is left heavy - right rotation about node
+                elif node.left_child.left_child:
+                    self.right_rotation(node)
+
+                # Node's left child only has right child
+                # Case 1b. Nodes left child is right heavy - Left rotation about left child,
+                #   followed by right rotation about node
+                elif node.left_child.right_child:
+                    self.left_rotation(node.left_child)
+                    self.right_rotation(node)
             
-            # Case 2b. Nodes right child is left heavy - right rotation about right child,
-            #   followed by left rotation about node
+            # Case 2. Right branch is heavy
             else:
-                self.right_rotation(node.right_child)
-                self.left_rotation(node)
+                # Node's right child has both children
+                if node.right_child.left_child and node.right_child.right_child:
+                    # Case 2a. Nodes right child is right heavy - left rotation about node
+                    if node.right_child.right_child.height > node.right_child.left_child.height:
+                        self.left_rotation(node)
+
+                    # Case 2b. Nodes right child is left heavy - Right rotation about right child,
+                    #   followed by left rotation about node
+                    else:
+                        self.right_rotation(node.right_child)
+                        self.left_rotation(node)
+                
+                # Node's right child has only right child
+                # Case 2a. Nodes right child is right heavy - left rotation about node
+                elif node.right_child.right_child:
+                    self.left_rotation(node)
+
+                # Node's right child has only left child
+                # Case 2b. Nodes right child is left heavy - right rotation about right child,
+                #   followed by left rotation about node
+                elif node.right_child.left_child:
+                    self.right_rotation(node.right_child)
+                    self.left_rotation(node)
+
 
     def left_rotation(self, node):
         new_root = node.right_child

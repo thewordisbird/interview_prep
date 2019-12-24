@@ -42,6 +42,7 @@ def populate_bst(bst, node_list):
         for node in node_list:
             print(f'Adding Key: {node[0]}, Value: {node[1]}')
             bst.put(node[0], node[1])
+            #print(f'Added Key: {node[0]}, Value: {node[1]}')
         bst.breadth_first_traversal()
 
 def test_bst_construction():
