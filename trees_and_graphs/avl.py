@@ -97,14 +97,14 @@ class BST:
         # NEEDS TO HANDLE NONE CHILDREN!
         '''Rebalance the tree'''
         if node.left_child and node.right_child:
-            node_left_height = node.left_child
-            node_right_height = node.right_child
+            node_left_height = node.left_child.height
+            node_right_height = node.right_child.height
         elif node.left_child:
-            node_left_height = node.left_child
+            node_left_height = node.left_child.height
             node_right_height = -1
         elif node.right_child:
             node_left_height = -1
-            node_right_height = node.right_child
+            node_right_height = node.right_child.height
         else:
             node_left_height = -1
             node_right_height = -1
