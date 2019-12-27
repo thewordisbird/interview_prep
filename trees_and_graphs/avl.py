@@ -45,34 +45,30 @@ class BST:
             Note: if node keys are equal, the node will be a left child of the already
             placed node'''
         # Determine path:
-        print(f'Comparing {new_node.key} to {current_node.key}')
+        #print(f'Comparing {new_node.key} to {current_node.key}')
         if new_node.key <= current_node.key:
             if current_node.left_child == None:
                 new_node.parent = current_node
                 current_node.left_child = new_node
+                print(f'Adding {new_node.key} as left child of {current_node.key}')
             else:
+                
                 self._put(new_node, current_node.left_child)
         else:
             if current_node.right_child == None:
                 new_node.parent = current_node
                 current_node.right_child = new_node
+                print(f'Adding {new_node.key} as right child of {current_node.key}')
             else:
                 self._put(new_node, current_node.right_child)
         
         # Update height and check balance factor on unwind
         self.update_height(current_node)
+        print(f'BF({current_node.key}) = {self.get_balance_factor(current_node)}')
         if self.get_balance_factor(current_node) > 1:
             print(f'rebalancing Key: {current_node.key}, Value: {current_node.value}')
             self.rebalance(current_node)
 
-        # Set balance factor on unwind:
-        #if current_node is None:
-        #    print("NONE")
-        #balance_factor = self.update_balance_factor(current_node)
-
-        # Rebalance if neccessary:
-        #if balance_factor > 1:
-        #    self.rebalance(current_node)
 
     def update_height(self, node):
         
@@ -149,10 +145,77 @@ class BST:
                 elif node.right_child.left_child:
                     self.right_rotation(node.right_child)
                     self.left_rotation(node)
+        
+        # Node has only left child
+        elif node.left_child:
+            # Node's left child has both children
+            if node.left_child.left_child and node.left_child.right_child:
+                # Case 1a. Nodes left child is left heavy - right rotation about node
+                if node.left_child.left_child.height >= node.left_child.right_child.height:
+                    self.right_rotation(node)
 
+                # Case 1b. Nodes left child is right heavy - Left rotation about left child,
+                #   followed by right rotation about node
+                else:
+                    self.left_rotation(node.left_child)
+                    self.right_rotation(node)
+
+            # Node's left child has only left child
+            # Case 1a. Nodes left child is left heavy - right rotation about node
+            elif node.left_child.left_child:
+                self.right_rotation(node)
+
+            # Node's left child only has right child
+            # Case 1b. Nodes left child is right heavy - Left rotation about left child,
+            #   followed by right rotation about node
+            elif node.left_child.right_child:
+                self.left_rotation(node.left_child)
+                self.right_rotation(node)
+
+        # Node has only right child
+        else:
+            # Node's right child has both children
+            if node.right_child.left_child and node.right_child.right_child:
+                # Case 2a. Nodes right child is right heavy - left rotation about node
+                if node.right_child.right_child.height > node.right_child.left_child.height:
+                    self.left_rotation(node)
+
+                # Case 2b. Nodes right child is left heavy - Right rotation about right child,
+                #   followed by left rotation about node
+                else:
+                    self.right_rotation(node.right_child)
+                    self.left_rotation(node)
+            
+            # Node's right child has only right child
+            # Case 2a. Nodes right child is right heavy - left rotation about node
+            elif node.right_child.right_child:
+                self.left_rotation(node)
+
+            # Node's right child has only left child
+            # Case 2b. Nodes right child is left heavy - right rotation about right child,
+            #   followed by left rotation about node
+            elif node.right_child.left_child:
+                self.right_rotation(node.right_child)
+                self.left_rotation(node)
+
+        # Update parent heights
+        self.update_parent_heights(node)
+
+    def update_parent_heights(self, node):
+        while node:
+            if node.left_child and node.right_child:
+                node.height = 1 + max(node.left_child.height, node.right_child.height)
+            elif node.left_child:
+                node.height = 1 + node.left_child.height
+            
+            elif node.right_child:
+                node.height = 1 + node.right_child.height
+            
+            node = node.parent
 
     def left_rotation(self, node):
         new_root = node.right_child
+        print(f'left rotation about {node.key}')
         # Set new_roots' parent to node's parent
         if node.parent:
             new_root.parent = node.parent
@@ -174,15 +237,25 @@ class BST:
         node.parent = new_root
 
         # Update heights
-        if node.left_child:
+        if node.right_child and node.left_child:
             node.height = 1 + max(node.left_child.height, node.right_child.height)
-        else:
+        elif node.right_child:
             node.height = 1 + node.right_child.height
+        elif node.left_child:
+            node.height = 1 + node.left_child.height
 
-        new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
+        if new_root.left_child and new_root.right_child:
+            new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
+        elif new_root.left_child:
+            new_root.height = 1 + new_root.left_child.height
+        else:
+            new_root.height = 1 + new_root.right_child.height
+
+
 
     def right_rotation(self, node):
         new_root = node.left_child
+        print(f'right rotation about {node.key}')
         # Set new_roots' parent to node's parent
         if node.parent:
             new_root.parent = node.parent
@@ -204,12 +277,19 @@ class BST:
         node.parent = new_root
 
         # Update heights
-        if node.right_child:
+        if node.right_child and node.left_child:
             node.height = 1 + max(node.left_child.height, node.right_child.height)
-        else:
+        elif node.right_child:
             node.height = 1 + node.right_child.height
+        elif node.left_child:
+            node.height = 1 + node.left_child.height
 
-        new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
+        if new_root.left_child and new_root.right_child:
+            new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
+        elif new_root.left_child:
+            new_root.height = 1 + new_root.left_child.height
+        else:
+            new_root.height = 1 + new_root.right_child.height
 
 
     def get(self, target_key):
