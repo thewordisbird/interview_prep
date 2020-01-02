@@ -64,29 +64,33 @@ class BST:
         
         # Update height and check balance factor on unwind
         self.update_height(current_node)
-        print(f'BF({current_node.key}) = {self.get_balance_factor(current_node)}')
+        #print(f'BF({current_node.key}) = {self.get_balance_factor(current_node)}')
         if self.get_balance_factor(current_node) > 1:
             print(f'rebalancing Key: {current_node.key}, Value: {current_node.value}')
             self.rebalance(current_node)
 
 
     def update_height(self, node):
+        while node != None:
+            if node.left_child and node.right_child:
+                node.height = 1 + max(node.left_child.height, node.right_child.height)
+            elif node.left_child:
+                node.height = 1 + node.left_child.height
+            elif node.right_child:
+                node.height = 1 + node.right_child.height
+            else:
+                node.height = 0
+            
+            node = node.parent
         
-        if node.left_child and node.right_child:
-            #print(node.left_child.height, node.right_child.height)
-            node.height = 1 + max(node.left_child.height, node.right_child.height)
-        elif node.left_child:
-            node.height = 1 + node.left_child.height
-        elif node.right_child:
-            node.height = 1 + node.right_child.height
 
     def get_balance_factor(self, node):
         if node.left_child and node.right_child:
             balance_factor = abs(node.left_child.height - node.right_child.height)        
         elif node.left_child:
-            balance_factor = abs(node.left_child.height - -1)     
+            balance_factor = abs(node.left_child.height + 1)     
         elif node.right_child:
-            balance_factor = abs(-1 - node.right_child.height)        
+            balance_factor = abs(node.right_child.height + 1)        
    
         return balance_factor
 
@@ -202,16 +206,9 @@ class BST:
         self.update_parent_heights(node)
 
     def update_parent_heights(self, node):
-        while node:
-            if node.left_child and node.right_child:
-                node.height = 1 + max(node.left_child.height, node.right_child.height)
-            elif node.left_child:
-                node.height = 1 + node.left_child.height
-            
-            elif node.right_child:
-                node.height = 1 + node.right_child.height
-            
-            node = node.parent
+        pass
+        
+        
 
     def left_rotation(self, node):
         new_root = node.right_child
@@ -225,12 +222,15 @@ class BST:
                 node.parent.right_child = new_root
         else:
             self.root = new_root
-            new_root.pair = None
+            new_root.parent = None
         
         # link new_root's left_child to node's right child
         if new_root.left_child:
             node.right_child = new_root.left_child
             node.right_child.parent = node
+        else:
+            node.right_child = None
+
         
         # Set new_roots left child to node
         new_root.left_child = node
@@ -243,13 +243,17 @@ class BST:
             node.height = 1 + node.right_child.height
         elif node.left_child:
             node.height = 1 + node.left_child.height
+        else:
+            node.height = 0
 
         if new_root.left_child and new_root.right_child:
             new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
         elif new_root.left_child:
             new_root.height = 1 + new_root.left_child.height
-        else:
+        elif new_root.right_child:
             new_root.height = 1 + new_root.right_child.height
+        
+
 
 
 
@@ -265,12 +269,14 @@ class BST:
                 node.parent.right_child = new_root
         else:
             self.root = new_root
-            new_root.pair = None
+            new_root.parent = None
         
         # link new_root's right_child to node's left child
         if new_root.right_child:
             node.left_child = new_root.right_child
             node.left_child.parent = node
+        else:
+            node.left_child = None
         
         # Set new_roots right child to node
         new_root.right_child = node
@@ -283,12 +289,14 @@ class BST:
             node.height = 1 + node.right_child.height
         elif node.left_child:
             node.height = 1 + node.left_child.height
+        else:
+            node.height = 0
 
         if new_root.left_child and new_root.right_child:
             new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
         elif new_root.left_child:
             new_root.height = 1 + new_root.left_child.height
-        else:
+        elif new_root.right_child:
             new_root.height = 1 + new_root.right_child.height
 
 
@@ -374,6 +382,7 @@ class BST:
             instance node'''
         current_node = node
         while current_node.left_child:
+            print(f'visiting {current_node.key}')
             current_node = current_node.left_child
             
         return current_node
@@ -461,6 +470,16 @@ class BST:
 
         return nodes
 
+    def pre_order_traversal(self):
+        map = {}
+        self._pre_order_traversal(self.root, map)
+        return map
+
+    def _pre_order_traversal(self, node, map):
+        if node:
+            map[node] = {'left': node.left_child, 'right': node.right_child}
+            self._pre_order_traversal(node.left_child, map)
+            self._pre_order_traversal(node.right_child, map)
     
 
         

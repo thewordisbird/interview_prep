@@ -1,5 +1,5 @@
 import pytest
-
+# pytest --cov-report term-missing --cov=avl
 from avl import Node, BST
 # Tests of methods in avl.py. Supporting both the Node and BST classes.
 
@@ -39,10 +39,8 @@ def populated_bst():
 
 def populate_bst(bst, node_list):
         print(node_list)
-        for node in node_list:
-            #print(f'Adding Key: {node[0]}, Value: {node[1]}')
-            bst.put(node[0], node[1])
-            #print(f'Added Key: {node[0]}, Value: {node[1]}, Root: {bst.root.key, bst.root.value}')
+        for node in node_list:            
+            bst.put(node[0], node[1])    
         bst.breadth_first_traversal()
 
 def test_bst_construction():
@@ -205,10 +203,7 @@ class TestBalance:
         # All test trees are unbalacned about root.
         bst = BST()
         self.build_unbalanced_tree(bst, node_list)      
-        #bst.breadth_first_traversal()  
         bst.rebalance(bst.root)
-        #print(bst.breadth_first_traversal())
-        #assert abs(bst.root.left_child.height - bst.root.right_child.height) <= 1
         assert bst.breadth_first_traversal() == rebalanced_node_list
 
     def test_left_rotation(self):
@@ -233,12 +228,14 @@ class TestBalance:
 class TestDelete:
     @pytest.mark.parametrize('sub_root_key, min_node_key',
                             [
-                                (70, 14)
+                                (70, 31),
+                                (73, 14),
+                                (93, 74)
                             ])
     def test_find_min(self, populated_bst, sub_root_key, min_node_key):
         bst = populated_bst
         sub_root_node = bst.get(sub_root_key)
-        assert bst.find_min().key == min_node_key
+        assert bst.find_min(sub_root_node).key == min_node_key
 
     def test_find_successor(self):
         # Single Item Tree
@@ -267,7 +264,22 @@ class TestDelete:
         # Node with single child (left & right)
         pass
 
+    def test_update_parent_height(self):
+        pass
 
+def test_pre_order_traversal(populated_bst):
+    tree = populated_bst.pre_order_traversal()
+    for k, v in tree.items():
+        if v['left'] and v['right']:
+            print(f"Node: {k.key} | Left: {v['left'].key} | right {v['right'].key}")
+        elif v['left']:
+            print(f"Node: {k.key} | Left: {v['left'].key} | right None")
+        elif v['right']:
+            print(f"Node: {k.key} | Left: None | right {v['right'].key}")
+        else:
+            print(f"Node: {k.key} | Left: None | right None")
+
+    assert 1 == 0
 
 
 
