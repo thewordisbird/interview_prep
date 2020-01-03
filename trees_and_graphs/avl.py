@@ -441,10 +441,9 @@ class BST:
             in effect de-refrenceing the deleted node and inserting the successor
             node in its place. This is only used in when the deleted node has
             both children'''
-        # Case 2. deleted_node has both children
         # Set parent node references
         successor_node.parent = deleted_node.parent
-        if deleted_node == deleted_node.parent.left_child:
+        if deleted_node == deleted_node.parent.left_child:ßß
             deleted_node.parent.left_child = successor_node
         else:
             deleted_node.parent.right_child = successor_node
