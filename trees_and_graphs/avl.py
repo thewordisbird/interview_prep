@@ -63,14 +63,24 @@ class BST:
                 self._put(new_node, current_node.right_child)
         
         # Update height and check balance factor on unwind
-        self.update_height(current_node)
+        self.update_node_height(current_node)
+        
         #print(f'BF({current_node.key}) = {self.get_balance_factor(current_node)}')
         if self.get_balance_factor(current_node) > 1:
             print(f'rebalancing Key: {current_node.key}, Value: {current_node.value}')
             self.rebalance(current_node)
 
+    def update_node_height(self, node):
+        if node.left_child and node.right_child:
+            node.height = 1 + max(node.left_child.height, node.right_child.height)
+        elif node.left_child:
+            node.height = 1 + node.left_child.height
+        elif node.right_child:
+            node.height = 1 + node.right_child.height
+        else:
+            node.height = 0
 
-    def update_height(self, node):
+    def update_parent_node_heights(self, node):
         while node != None:
             if node.left_child and node.right_child:
                 node.height = 1 + max(node.left_child.height, node.right_child.height)
@@ -203,10 +213,8 @@ class BST:
                 self.left_rotation(node)
 
         # Update parent heights
-        self.update_parent_heights(node)
+        self.update_parent_node_heights(node)
 
-    def update_parent_heights(self, node):
-        pass
         
         
 

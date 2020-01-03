@@ -32,7 +32,7 @@ def populated_bst():
                 (70, 'A'), (31, 'B'), (93, 'C'), (14, 'D'), (73, 'E'), 
                 (94, 'F'), (23, 'G'), (71, 'H'), (80, 'I'), (96, 'J'),
                 (75, 'K'), (85, 'L'), (95, 'M'), (74, 'N'), (76, 'O'),
-                (20, 'P'), (19, 'Q')
+                (20, 'P'), (19, 'Q'), (35, 'R'), (81, 'S')
             ]
     populate_bst(bst, nodes)
     return bst
@@ -151,7 +151,7 @@ class TestBalance:
                             (Node(50, 'A'), 6, None, None, Node(75, 'C'), 5),
                             (Node(50, 'A'), 6, Node(25, 'B'), 5, None, None)
                         ])
-    def test_update_height(self, parent_node, parent_height, left_node, left_node_height, right_node, right_node_height):
+    def test_update_node_height(self, parent_node, parent_height, left_node, left_node_height, right_node, right_node_height):
         bst = BST()
         if left_node:
             left_node.height = left_node_height
@@ -163,7 +163,7 @@ class TestBalance:
 
         bst.root = parent_node
 
-        bst.update_height(bst.root)
+        bst.update_node_height(bst.root)
 
         assert bst.root.height == parent_height
 
@@ -237,27 +237,66 @@ class TestDelete:
         sub_root_node = bst.get(sub_root_key)
         assert bst.find_min(sub_root_node).key == min_node_key
 
-    def test_find_successor(self):
+    @pytest.mark.parametrize('deleted_node, successor_node',
+                            [
+                                (14, None),
+                                (76, None),
+                                (23, 31),
+                                (93, 94),
+                                (73, 74),
+                                (31, 35),
+                                (85, 81)
+                            ])
+    def test_find_successor(self, populated_bst, deleted_node, successor_node):
         # Single Item Tree
         # Leaf Node (right & left)
         # Node with both children
         # Node with single child (right & left)
-        pass
+        node = populated_bst.get(deleted_node)
+        if successor_node == None:
+            assert populated_bst.find_successor(node) == None
+        else:
+            assert populated_bst.find_successor(node).key == successor_node
 
-    def test_splice(self):
+    @pytest.mark.parametrize('splice_node, parent_left, parent_right',
+                            {
+                                (14, None, 20),
+                                (81, None, None),
+                                (31, 35, 71)
+                            })
+    def test_splice(self, populated_bst, splice_node, parent_left, parent_right):
         # Leaf Node
         # Single Child (right & left)
-        pass
+        node = populated_bst.get(splice_node)
+        parent = node.parent
+        populated_bst.splice(node)
+        if parent_left and parent_right:
+            assert parent.left_child.key == parent_left
+            assert parent.right_child.key == parent_right
+        elif parent_left:
+            assert parent.left_child.key == parent_left
+            assert parent.right_child == parent_right
+        elif parent_right:
+            assert parent.left_child == parent_left
+            assert parent.right_child.key == parent_right
+        else:
+            assert parent.left_child == parent_left
+            assert parent.right_child == parent_right
 
-    def test_insert_successor(self):
+    # LEFT OFF HERE!
+    @pytest.mark.parametrize('deleted_node, left_child, right_child',
+                            [
+
+                            ])
+    def test_insert_successor(self, populated_bst, successor_node, deleted_node):
         # Node has both children
         pass
 
     def test_delete_key_not_found(self):
         # Key Not found
         pass
-
-    def test_delete(self):
+    
+    def test_delete(self,populated_bst):
         # Root Node
         # Leaf Node (left & right)
         # Node with both children
@@ -267,8 +306,8 @@ class TestDelete:
     def test_update_parent_height(self):
         pass
 
-def test_pre_order_traversal(populated_bst):
-    tree = populated_bst.pre_order_traversal()
+def display_post_order_traversal(bst):
+    tree = bst.pre_order_traversal()
     for k, v in tree.items():
         if v['left'] and v['right']:
             print(f"Node: {k.key} | Left: {v['left'].key} | right {v['right'].key}")
@@ -278,8 +317,6 @@ def test_pre_order_traversal(populated_bst):
             print(f"Node: {k.key} | Left: None | right {v['right'].key}")
         else:
             print(f"Node: {k.key} | Left: None | right None")
-
-    assert 1 == 0
 
 
 
