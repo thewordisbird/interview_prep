@@ -283,25 +283,40 @@ class TestDelete:
             assert parent.left_child == parent_left
             assert parent.right_child == parent_right
 
-    # LEFT OFF HERE!
-    @pytest.mark.parametrize('deleted_node, left_child, right_child',
+    @pytest.mark.parametrize('deleted_node, left_child, right_child, successor_node',
                             [
-
+                                (80, 75, 85, 81),
                             ])
-    def test_insert_successor(self, populated_bst, successor_node, deleted_node):
+    def test_insert_successor(self, populated_bst, deleted_node, left_child, right_child, successor_node):
         # Node has both children
-        pass
+        node = populated_bst.get(deleted_node)
+        successor_node = populated_bst.get(successor_node)
 
-    def test_delete_key_not_found(self):
-        # Key Not found
-        pass
+        populated_bst.insert_successor(successor_node, node)
+        assert successor_node.left_child.key == left_child
+        assert successor_node.right_child.key == right_child
+
+    @pytest.mark.parametrize('key',
+                            [
+                                (1), (100), (97)
+                            ])
+    def test_delete_key_not_found(self, populated_bst, key):
+        with pytest.raises(KeyError):
+            populated_bst.delete(key)
     
-    def test_delete(self,populated_bst):
-        # Root Node
-        # Leaf Node (left & right)
-        # Node with both children
-        # Node with single child (left & right)
-        pass
+    @pytest.mark.parametrize('deleted_node',
+                            [
+                                (73), # Root node
+                                (74), # Left leaf node
+                                (35), # Right leaf node
+                                (80), # Sub node with both children
+                                (31), # Sub node with right child
+                                (85), # Sub node with left child
+                            ])
+    def test_delete(self,populated_bst, deleted_node):
+        populated_bst.delete(deleted_node)
+        with pytest.raises(KeyError):
+            populated_bst.get(deleted_node)
 
     def test_update_parent_height(self):
         pass

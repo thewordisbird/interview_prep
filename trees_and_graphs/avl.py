@@ -23,6 +23,9 @@ class BST:
         self.root = None
         self.size = 0
 
+    # ===================================================================================
+    # ==================PUT METHODS TO INSERT A KEY, VALUE PAIR INTO BST=================
+
     def put(self, key, value):
         '''inserts key, value pair into the BST by ways of the _put helper function'''
         # Create new node:
@@ -70,7 +73,139 @@ class BST:
             print(f'rebalancing Key: {current_node.key}, Value: {current_node.value}')
             self.rebalance(current_node)
 
+    
+    # ===================================================================================
+    # =================GET METHODS TO RETRIEVE A KEY, VALUE PAIR FROM BST================
+
+    def get(self, target_key):
+        '''Find node by key and return value'''
+        if self.root:
+            result_node = self._get(target_key, self.root)
+            if result_node:
+                return result_node
+            else:
+                return None
+        else:
+            return None
+    
+    # NEEDS TESTING BELOW
+
+    def _get(self, target_key, current_node):
+        if current_node == None:
+            return None
+        elif current_node.key == target_key:
+            return current_node
+        elif current_node.key > target_key:
+            return self._get(target_key, current_node.left_child)
+        else:
+            return self._get(target_key, current_node.right_child)
+    
+
+    # ===================================================================================
+    # ================DELETE METHODS TO REMOVE A KEY, VALUE PAIR FROM BST================
+
+    def delete(self, key):
+        node_to_remove = self._get(key, self.root)
+        if node_to_remove is None:
+            raise KeyError('Key not found in tree.')
+        else:
+            successor = self.find_successor(node_to_remove)
+            # Case 1. Node is a leaf or single root
+            if successor is None:
+                if node_to_remove.parent:
+                    if node_to_remove == node_to_remove.parent.left_child:
+                        node_to_remove.parent.left_child = None
+                    else:
+                        node_to_remove.parent.right_child = None
+                    
+                    
+                else:
+                    self.root = None
+            
+            # Case 2. Node has both children
+            elif node_to_remove.left_child and node_to_remove.right_child:
+                self.splice(successor)
+                self.insert_successor(successor, node_to_remove)
+
+            # Case 3. Node has only one child
+            else:
+                self.splice(node_to_remove)
+            
+            # Rebalance after deletion
+            self.rebalance_after_delete(node_to_remove.parent)
+            self.size -= 1
+
+    def find_successor(self, node):
+        '''Finds and returns the appropriate successor node depending
+            on the position of the node being deleted''' 
+        # Case 1 Node has no children       
+        if not node.left_child and not node.right_child:         
+            return None      
+
+        # Case 2 Node has both children. The successor is the node
+        #   with the minimum key value in the right sub-tree
+        elif node.left_child and node.right_child:
+            return self.find_min(node.right_child)        
+
+        # Case 3 Node has only one child. The successor is the
+        # child of the given node
+        else:
+            if node.left_child:
+                return node.left_child
+            else:
+                return node.right_child
+
+    def find_min(self, node):
+        '''Returns the minimum node in a subtree rooted with the 
+            instance node'''
+        current_node = node
+        while current_node.left_child:
+            print(f'visiting {current_node.key}')
+            current_node = current_node.left_child
+            
+        return current_node
+
+    def splice(self, node):
+        '''Removes all refrences to the successor node and re-directs 
+            relatives to the appropriate node'''
+        # Case 1. node is a leaf.
+        if not node.left_child and not node.right_child:
+            if node == node.parent.left_child:
+                node.parent.left_child = None
+            else:
+                node.parent.right_child = None
+
+        # Case 2. node has child. Note: successor node will
+        #   never have a left child since the successor node is the min key
+        #   value in a sub-tree. But since splice is also used to delete a node
+        #   with only one child, the following code handles both children cases
+        else:
+            if node.left_child:
+                if node == node.parent.left_child:
+                    node.parent.left_child = node.left_child
+                else:
+                    node.parent.right_child = node.left_child
+                
+                # set left child's parent reference:
+                node.left_child.parent = node.parent
+
+            else:
+                if node == node.parent.left_child:
+                    node.parent.left_child = node.right_child
+                else:
+                    node.parent.right_child = node.right_child
+                
+                # set right child's parent reference:
+                node.right_child.parent = node.parent
+    
+    
+    # ===================================================================================
+    # =======REBALANCE METHODS TO REBALANCE BST AFTER INSERT OR DELETION OF A NODE======= 
+    
     def update_node_height(self, node):
+        '''Updates a single node's height.'''
+        # Used in _put() method to update node height on unwinde
+
         if node.left_child and node.right_child:
             node.height = 1 + max(node.left_child.height, node.right_child.height)
         elif node.left_child:
@@ -80,7 +215,11 @@ class BST:
         else:
             node.height = 0
 
+
     def update_parent_node_heights(self, node):
+        '''Climbs up tree from node to parent, updateing heights along the way'''
+        # Used after rebalance to update node heights affected by action
+
         while node != None:
             if node.left_child and node.right_child:
                 node.height = 1 + max(node.left_child.height, node.right_child.height)
@@ -95,6 +234,7 @@ class BST:
         
 
     def get_balance_factor(self, node):
+        '''Returns the balance factor at the node'''
         if node.left_child and node.right_child:
             balance_factor = abs(node.left_child.height - node.right_child.height)        
         elif node.left_child:
@@ -106,6 +246,7 @@ class BST:
 
 
     def rebalance(self, node):
+        '''Maps correct rotations sequence to correct imbalance'''
         # Node has both children:
         if node.left_child and node.right_child:
             # Case 1. Left branch is heavy
@@ -215,9 +356,7 @@ class BST:
         # Update parent heights
         self.update_parent_node_heights(node)
 
-        
-        
-
+    
     def left_rotation(self, node):
         new_root = node.right_child
         print(f'left rotation about {node.key}')
@@ -308,125 +447,9 @@ class BST:
             new_root.height = 1 + new_root.right_child.height
 
 
-    def get(self, target_key):
-        '''Find node by key and return value'''
-        if self.root:
-            result_node = self._get(target_key, self.root)
-            if result_node:
-                return result_node
-            else:
-                return None
-        else:
-            return None
     
-    # NEEDS TESTING BELOW
 
-    def _get(self, target_key, current_node):
-        if current_node == None:
-            return None
-        elif current_node.key == target_key:
-            return current_node
-        elif current_node.key > target_key:
-            return self._get(target_key, current_node.left_child)
-        else:
-            return self._get(target_key, current_node.right_child)
-
-    def delete(self, key):
-        node_to_remove = self._get(key, self.root)
-        if node_to_remove is None:
-            raise KeyError('Key not found in tree.')
-        else:
-            successor = self.find_successor(node_to_remove)
-            # Case 1. Node is a leaf or single root
-            if successor is None:
-                if node_to_remove.parent:
-                    if node_to_remove == node_to_remove.parent.left_child:
-                        node_to_remove.parent.left_child = None
-                    else:
-                        node_to_remove.parent.right_child = None
-                    
-                    # Rebalance after deletion
-                    self.rebalance_after_delete(parent)
-                else:
-                    self.root = None
-            
-            # Case 2. Node has both children
-            elif node_to_remove.left_child and node_to_remove.right_child:
-                self.splice(successor)
-                # Rebalance after deletion
-                self.rebalance_after_delete(parent)
-                self.insert_successor(successor, node_to_remove)
-
-            # Case 3. Node has only one child
-            else:
-                self.splice(node_to_remove)
-                # Rebalance after deletion
-                self.rebalance_after_delete(parent)
-
-            self.size -= 1
-
-    def find_successor(self, node):
-        '''Finds and returns the appropriate successor node depending
-            on the position of the node being deleted''' 
-        # Case 1 Node has no children       
-        if not node.left_child and not node.right_child:         
-            return None      
-
-        # Case 2 Node has both children. The successor is the node
-        #   with the minimum key value in the right sub-tree
-        elif node.left_child and node.right_child:
-            return self.find_min(node.right_child)        
-
-        # Case 3 Node has only one child. The successor is the
-        # child of the given node
-        else:
-            if node.left_child:
-                return node.left_child
-            else:
-                return node.right_child
-
-    def find_min(self, node):
-        '''Returns the minimum node in a subtree rooted with the 
-            instance node'''
-        current_node = node
-        while current_node.left_child:
-            print(f'visiting {current_node.key}')
-            current_node = current_node.left_child
-            
-        return current_node
-
-    def splice(self, node):
-        '''Removes all refrences to the successor node and re-directs 
-            relatives to the appropriate node'''
-        # Case 1. node is a leaf.
-        if not node.left_child and not node.right_child:
-            if node == node.parent.left_child:
-                node.parent.left_child = None
-            else:
-                node.parent.right_child = None
-
-        # Case 2. node has child. Note: successor node will
-        #   never have a left child since the successor node is the min key
-        #   value in a sub-tree. But since splice is also used to delete a node
-        #   with only one child, the following code handles both children cases
-        else:
-            if node.left_child:
-                if node == node.parent.left_child:
-                    node.parent.left_child = node.left_child
-                else:
-                    node.parent.right_child = node.left_child
-                
-                # set left child's parent reference:
-                node.left_child.parent = node.parent
-
-            else:
-                if node == node.parent.left_child:
-                    node.parent.left_child = node.right_child
-                else:
-                    node.parent.right_child = node.right_child
-                
-                # set right child's parent reference:
-                node.right_child.parent = node.parent
+    
 
     
     def rebalance_after_delete(self, node):
@@ -443,7 +466,7 @@ class BST:
             both children'''
         # Set parent node references
         successor_node.parent = deleted_node.parent
-        if deleted_node == deleted_node.parent.left_child:ßß
+        if deleted_node == deleted_node.parent.left_child:
             deleted_node.parent.left_child = successor_node
         else:
             deleted_node.parent.right_child = successor_node
