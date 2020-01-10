@@ -115,24 +115,29 @@ class BST:
                 if node_to_remove.parent:
                     if node_to_remove == node_to_remove.parent.left_child:
                         node_to_remove.parent.left_child = None
+
+                        # Rebalance after deletion
+                        self.rebalance_after_delete(node_to_remove.parent)
+    
                     else:
                         node_to_remove.parent.right_child = None
-                    
-                    
                 else:
                     self.root = None
             
             # Case 2. Node has both children
             elif node_to_remove.left_child and node_to_remove.right_child:
                 self.splice(successor)
+                self.rebalance_after_delete(sucessor.parent)
                 self.insert_successor(successor, node_to_remove)
 
             # Case 3. Node has only one child
             else:
                 self.splice(node_to_remove)
             
-            # Rebalance after deletion
-            self.rebalance_after_delete(node_to_remove.parent)
+                # Rebalance after deletion
+                self.rebalance_after_delete(node_to_remove.parent)
+            
+            # Reduce the size of the tree
             self.size -= 1
 
     def find_successor(self, node):
@@ -447,17 +452,17 @@ class BST:
             new_root.height = 1 + new_root.right_child.height
 
 
-    
-
-    
-
-    
     def rebalance_after_delete(self, node):
+        '''Climbs tree from deleted node's parent to root. Evaluates height and checks
+            balance factor. Reblances if necessary.'''
         while node:
-            self.update_height(node)
-            if self.get_balance_factor > 1:
+            self.update_node_height(node)
+            if self.get_balance_factor(node) > 1:
+                node_parent = node.parent
                 self.rebalance(node)
-            node = node.parent
+                node = node_parent
+            else:
+                node = node.parent
                 
     def insert_successor(self, successor_node, deleted_node):
         '''replaces the successor node pointers with those of the deleted node.
@@ -510,6 +515,16 @@ class BST:
             map[node] = {'left': node.left_child, 'right': node.right_child}
             self._pre_order_traversal(node.left_child, map)
             self._pre_order_traversal(node.right_child, map)
+
+    def in_order_traversal(self):
+        map = {}
+        self._in_order_traversal(self.root, map)
+
+    def _in_order_traversal(self, node, map):
+        self._in_order_traversal(node.left_child, map)
+        map[node] = {'node': node.key, 'left': node.left_child.key, 'right': node.right_child.key}
+        self._in_order_traversal(node.right_child, map)
+
     
 
         

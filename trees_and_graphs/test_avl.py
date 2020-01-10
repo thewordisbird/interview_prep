@@ -313,10 +313,14 @@ class TestDelete:
                                 (31), # Sub node with right child
                                 (85), # Sub node with left child
                             ])
-    def test_delete(self,populated_bst, deleted_node):
-        populated_bst.delete(deleted_node)
+    def test_delete(self, populated_bst, deleted_node):
+        pass
+
+
+    def test_delete_key_error(self,populated_bst):
+        
         with pytest.raises(KeyError):
-            populated_bst.get(deleted_node)
+            populated_bst.delete(69)
 
     def test_update_parent_height(self):
         pass
