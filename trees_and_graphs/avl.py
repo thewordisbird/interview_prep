@@ -216,7 +216,9 @@ class BST:
             else:
                 deleted_node.parent.right_child = successor_node
         else:
+            # If the deleted node has no parent it is the root. Set the new root
             self.root = successor_node
+
         # Set deleted_node's children's parent references to successor_node
         successor_node.left_child = deleted_node.left_child
         deleted_node.left_child.parent = successor_node
@@ -431,10 +433,6 @@ class BST:
         elif new_root.right_child:
             new_root.height = 1 + new_root.right_child.height
         
-
-
-
-
     def right_rotation(self, node):
         new_root = node.left_child
         print(f'right rotation about {node.key}')
