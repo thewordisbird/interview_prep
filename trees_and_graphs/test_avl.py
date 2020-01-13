@@ -189,9 +189,6 @@ class TestBalance:
 
         assert bst.get_balance_factor(bst.root) == parent_bf
 
-        
-    
-    
     @pytest.mark.parametrize('node_list, rebalanced_node_list',
                         [
                             (right_heavy_right_child_right_heavy_bst, rebalanced_right_heavy_right_child_right_heavy_node_list),
@@ -304,19 +301,19 @@ class TestDelete:
         with pytest.raises(KeyError):
             populated_bst.delete(key)
     
-    @pytest.mark.parametrize('deleted_node',
+    @pytest.mark.parametrize('deleted_node, node_list_after_delete',
                             [
-                                (73), # Root node
-                                (74), # Left leaf node
-                                (35), # Right leaf node
-                                (80), # Sub node with both children
-                                (31), # Sub node with right child
-                                (85), # Sub node with left child
+                                (73, [14, 19, 20, 23, 31, 35, 70, 71, 74, 75, 76, 80, 81, 85, 93, 94, 95, 96]), # Root node
+                                (74, [14, 19, 20, 23, 31, 35, 70, 71, 73, 75, 76, 80, 81, 85, 93, 94, 95, 96]), # Left leaf node
+                                (35, [14, 19, 20, 23, 31, 70, 71, 73, 74, 75, 76, 80, 81, 85, 93, 94, 95, 96]), # Right leaf node
+                                (80, [14, 19, 20, 23, 31, 35, 70, 71, 73, 74, 75, 76, 81, 85, 93, 94, 95, 96]), # Sub node with both children
+                                (31, [14, 19, 20, 23, 35, 70, 71, 73, 74, 75, 76, 80, 81, 85, 93, 94, 95, 96]), # Sub node with right child
+                                (85, [14, 19, 20, 23, 31, 35, 70, 71, 73, 74, 75, 76, 80, 81, 93, 94, 95, 96]), # Sub node with left child
                             ])
-    def test_delete(self, populated_bst, deleted_node):
-        pass
-
-
+    def test_delete(self, populated_bst, deleted_node, node_list_after_delete):
+        populated_bst.delete(deleted_node)
+        assert in_order_node_list(populated_bst) == node_list_after_delete
+        
     def test_delete_key_error(self,populated_bst):
         
         with pytest.raises(KeyError):
@@ -325,7 +322,7 @@ class TestDelete:
     def test_update_parent_height(self):
         pass
 
-def display_post_order_traversal(bst):
+def display_pre_order_traversal(bst):
     tree = bst.pre_order_traversal()
     for k, v in tree.items():
         if v['left'] and v['right']:
@@ -337,6 +334,27 @@ def display_post_order_traversal(bst):
         else:
             print(f"Node: {k.key} | Left: None | right None")
 
+def display_in_order_traversal(bst):
+    tree = bst.in_order_traversal()
+    node_list = []
+    for k,v in tree. items():
+        node_list.append(k.key)
+        if v['left'] and v['right']:
+            print(f"Node: {k.key} | Left: {v['left'].key} | right {v['right'].key}")
+        elif v['left']:
+            print(f"Node: {k.key} | Left: {v['left'].key} | right None")
+        elif v['right']:
+            print(f"Node: {k.key} | Left: None | right {v['right'].key}")
+        else:
+            print(f"Node: {k.key} | Left: None | right None")
+    
+def in_order_node_list(bst):
+    tree = bst.in_order_traversal()
+    return [k.key for k in tree]
+    
+
+# For next session:
+# Fill out tests for full coverage!
 
 
 

@@ -127,7 +127,7 @@ class BST:
             # Case 2. Node has both children
             elif node_to_remove.left_child and node_to_remove.right_child:
                 self.splice(successor)
-                self.rebalance_after_delete(sucessor.parent)
+                self.rebalance_after_delete(successor.parent)
                 self.insert_successor(successor, node_to_remove)
 
             # Case 3. Node has only one child
@@ -203,6 +203,30 @@ class BST:
                 # set right child's parent reference:
                 node.right_child.parent = node.parent
     
+    def insert_successor(self, successor_node, deleted_node):
+        '''replaces the successor node pointers with those of the deleted node.
+            in effect de-refrenceing the deleted node and inserting the successor
+            node in its place. This is only used in when the deleted node has
+            both children'''
+        # Set parent node references
+        successor_node.parent = deleted_node.parent
+        if deleted_node.parent:
+            if deleted_node == deleted_node.parent.left_child:
+                deleted_node.parent.left_child = successor_node
+            else:
+                deleted_node.parent.right_child = successor_node
+        else:
+            self.root = successor_node
+        # Set deleted_node's children's parent references to successor_node
+        successor_node.left_child = deleted_node.left_child
+        deleted_node.left_child.parent = successor_node
+
+        successor_node.right_child = deleted_node.right_child
+        deleted_node.right_child.parent = successor_node
+
+    def __delitem__(self, key):
+        self.delete(key) 
+    
     
     # ===================================================================================
     # =======REBALANCE METHODS TO REBALANCE BST AFTER INSERT OR DELETION OF A NODE======= 
@@ -245,7 +269,9 @@ class BST:
         elif node.left_child:
             balance_factor = abs(node.left_child.height + 1)     
         elif node.right_child:
-            balance_factor = abs(node.right_child.height + 1)        
+            balance_factor = abs(node.right_child.height + 1)    
+        else:
+            balance_factor = 0    
    
         return balance_factor
 
@@ -464,27 +490,7 @@ class BST:
             else:
                 node = node.parent
                 
-    def insert_successor(self, successor_node, deleted_node):
-        '''replaces the successor node pointers with those of the deleted node.
-            in effect de-refrenceing the deleted node and inserting the successor
-            node in its place. This is only used in when the deleted node has
-            both children'''
-        # Set parent node references
-        successor_node.parent = deleted_node.parent
-        if deleted_node == deleted_node.parent.left_child:
-            deleted_node.parent.left_child = successor_node
-        else:
-            deleted_node.parent.right_child = successor_node
-        
-        # Set deleted_node's children's parent references to successor_node
-        successor_node.left_child = deleted_node.left_child
-        deleted_node.left_child.parent = successor_node
-
-        successor_node.right_child = deleted_node.right_child
-        deleted_node.right_child.parent = successor_node
-
-    def __delitem__(self, key):
-        self.delete(key) 
+    
 
 
     # NEEDS TESTING ABOVE
@@ -519,11 +525,13 @@ class BST:
     def in_order_traversal(self):
         map = {}
         self._in_order_traversal(self.root, map)
+        return map
 
     def _in_order_traversal(self, node, map):
-        self._in_order_traversal(node.left_child, map)
-        map[node] = {'node': node.key, 'left': node.left_child.key, 'right': node.right_child.key}
-        self._in_order_traversal(node.right_child, map)
+        if node:
+            self._in_order_traversal(node.left_child, map)
+            map[node] = {'left': node.left_child, 'right': node.right_child}
+            self._in_order_traversal(node.right_child, map)
 
     
 
