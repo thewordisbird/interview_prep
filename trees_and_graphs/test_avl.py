@@ -79,6 +79,37 @@ left_heavy_left_child_right_heavy_bst = [
 
 rebalanced_left_heavy_left_child_right_heavy_node_list = ['E', 'B', 'A', 'D', 'I', 'J', 'C', 'H', 'K', 'F', 'G']
 
+class TestGet:
+    @pytest.mark.parametrize('target_key, result_key',
+                            [
+                                (73, 73),
+                                (80, 80),
+                                (31, 31),
+                                (7, None)
+                            ])
+    def test__get(self, populated_bst, target_key, result_key):
+        result = populated_bst._get(target_key, populated_bst.root)
+        if result:
+            assert result.key == result_key
+        else:
+            assert result == result_key
+
+    @pytest.mark.parametrize('target_key, result_key',
+                            [
+                                (73, 73),
+                                (80, 80),
+                                (31, 31),
+                                (7, None)
+                            ])
+    def test_get_populated_bst(self, populated_bst, target_key, result_key):
+        result = populated_bst.get(target_key)
+        if result:
+            assert result.key == result_key
+        else:
+            assert result == result_key
+
+    def test_get_empty_bst(self, empty_bst):
+        assert empty_bst.get(1) == None
 
 class TestPut:
     @pytest.mark.parametrize('new_node, parent, root_height', 
@@ -259,6 +290,7 @@ class TestDelete:
                             {
                                 (14, None, 20),
                                 (81, None, None),
+                                (35, None, None),
                                 (31, 35, 71)
                             })
     def test_splice(self, populated_bst, splice_node, parent_left, parent_right):
@@ -283,6 +315,7 @@ class TestDelete:
     @pytest.mark.parametrize('deleted_node, left_child, right_child, successor_node',
                             [
                                 (80, 75, 85, 81),
+                                (93, 80, 95, 94)
                             ])
     def test_insert_successor(self, populated_bst, deleted_node, left_child, right_child, successor_node):
         # Node has both children
@@ -313,6 +346,24 @@ class TestDelete:
     def test_delete(self, populated_bst, deleted_node, node_list_after_delete):
         populated_bst.delete(deleted_node)
         assert in_order_node_list(populated_bst) == node_list_after_delete
+
+    @pytest.mark.parametrize('deleted_node, node_list_after_delete',
+                            [
+                                (73, [14, 19, 20, 23, 31, 35, 70, 71, 74, 75, 76, 80, 81, 85, 93, 94, 95, 96]), # Root node
+                                (74, [14, 19, 20, 23, 31, 35, 70, 71, 73, 75, 76, 80, 81, 85, 93, 94, 95, 96]), # Left leaf node
+                                (35, [14, 19, 20, 23, 31, 70, 71, 73, 74, 75, 76, 80, 81, 85, 93, 94, 95, 96]), # Right leaf node
+                                (80, [14, 19, 20, 23, 31, 35, 70, 71, 73, 74, 75, 76, 81, 85, 93, 94, 95, 96]), # Sub node with both children
+                                (31, [14, 19, 20, 23, 35, 70, 71, 73, 74, 75, 76, 80, 81, 85, 93, 94, 95, 96]), # Sub node with right child
+                                (85, [14, 19, 20, 23, 31, 35, 70, 71, 73, 74, 75, 76, 80, 81, 93, 94, 95, 96]), # Sub node with left child
+                            ])
+    def test__delitem__(self, populated_bst, deleted_node, node_list_after_delete):
+        del populated_bst[deleted_node]
+        assert in_order_node_list(populated_bst) == node_list_after_delete
+        
+
+    def test_delete_rooted_bst(self, rooted_bst):
+        rooted_bst.delete(rooted_bst.root.key)
+        assert rooted_bst.root == None
         
     def test_delete_key_error(self,populated_bst):
         

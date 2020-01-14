@@ -80,13 +80,9 @@ class BST:
     def get(self, target_key):
         '''Find node by key and return value'''
         if self.root:
-            result_node = self._get(target_key, self.root)
-            if result_node:
-                return result_node
-            else:
-                return None
-        else:
-            return None
+            return self._get(target_key, self.root)
+       
+        return None
     
     # NEEDS TESTING BELOW
 
