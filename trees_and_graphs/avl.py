@@ -1,6 +1,10 @@
 # Binary Search Tree with AVL balancing 
 from collections import deque
 
+# TODO:
+#   -Add comments for all methods
+#   -Make distributable package
+
 class Node:
     '''Node properties for a node instance in the AVL BST'''
     # Access to properties will be performed directly, not through an access method.
@@ -483,11 +487,10 @@ class BST:
                 node = node_parent
             else:
                 node = node.parent
-                
+
+    # ===================================================================================
+    # =================================TRAVERSAL METHODS=================================       
     
-
-
-    # NEEDS TESTING ABOVE
     def breadth_first_traversal(self):
         nodes = []
         q = deque()
@@ -526,6 +529,17 @@ class BST:
             self._in_order_traversal(node.left_child, map)
             map[node] = {'left': node.left_child, 'right': node.right_child}
             self._in_order_traversal(node.right_child, map)
+
+    def post_order_traversal(self):
+        map = {}
+        self._post_order_traversal(self.root, map)
+        return map
+
+    def _post_order_traversal(self, node, map):
+        if node:
+            self._post_order_traversal(node.left_child, map)
+            self._post_order_traversal(node.right_child, map)
+            map[node] = {'left': node.left_child, 'right': node.right_child}
 
     
 

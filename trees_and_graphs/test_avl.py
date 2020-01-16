@@ -3,6 +3,9 @@ import pytest
 from avl import Node, BST
 # Tests of methods in avl.py. Supporting both the Node and BST classes.
 
+# TODO:
+#   - Add comments for all test methods
+
 # Tests for Node Class
 def test_node_construction():
     n = Node('key', 'value')
@@ -38,10 +41,20 @@ def populated_bst():
     return bst
 
 def populate_bst(bst, node_list):
-        print(node_list)
-        for node in node_list:            
-            bst.put(node[0], node[1])    
-        bst.breadth_first_traversal()
+    '''Creates a bst from a node_list. This tree will be balanced as 
+        nodes are created per the put method'''
+        #print(node_list)
+    for node in node_list:            
+        bst.put(node[0], node[1])    
+        #bst.breadth_first_traversal()
+
+def zero_branch_node_heights(bst, node):
+    '''Zeros out parent nodes of given node until the root is reached'''
+    while node:
+        node.height = 0
+        node = node.parent
+    
+    
 
 def test_bst_construction():
     bst = BST()
@@ -197,6 +210,23 @@ class TestBalance:
         bst.update_node_height(bst.root)
 
         assert bst.root.height == parent_height
+
+    @pytest.mark.parametrize('node',
+                            [
+                                (14),
+                                (96),
+                                (23),
+                                (31),
+                                (85)
+                            ])
+    def test_update_parent_node_height(self, populated_bst, node):
+        root_height = populated_bst.root.height
+        assert root_height == 4
+        start_node = populated_bst.get(node)
+        zero_branch_node_heights(populated_bst, start_node)
+        assert populated_bst.root.height == 0
+        populated_bst.update_parent_node_heights(start_node)
+        assert populated_bst.root.height == root_height
 
     @pytest.mark.parametrize('parent_node, parent_bf, left_node, left_node_height, right_node, right_node_height',
                         [
@@ -370,9 +400,6 @@ class TestDelete:
         with pytest.raises(KeyError):
             populated_bst.delete(69)
 
-    def test_update_parent_height(self):
-        pass
-
 def display_pre_order_traversal(bst):
     tree = bst.pre_order_traversal()
     for k, v in tree.items():
@@ -403,9 +430,6 @@ def in_order_node_list(bst):
     tree = bst.in_order_traversal()
     return [k.key for k in tree]
     
-
-# For next session:
-# Fill out tests for full coverage!
 
 
 
