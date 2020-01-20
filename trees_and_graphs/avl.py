@@ -2,37 +2,74 @@
 from collections import deque
 
 # TODO:
-#   -Add comments for all methods
+#   -Add comments for methods from delete down
 #   -Make distributable package
 
 class Node:
-    '''Node properties for a node instance in the AVL BST'''
-    # Access to properties will be performed directly, not through an access method.
-    # I see no reason to create code when a simple access already exists. If i can 
-    # find more information on proper implementation I will update accordingly.
+    """
+    A class containing node properties for nodes in AVL BST.
+
+    Attributes:
+        Attributes required at instantiation:
+            key (int): Unique key to access node.
+            value (var): Value held in node, can be of any type.
+        
+        Attributes set as None at instantiation:
+            left_child (node): A reference to the left child of the node.
+            right_child (node): A reference to the right child of the node.
+            parent (node): A reference to the parent if the node
+            height (int): The height of the node
+    """
+
     def __init__(self, key, value):
+        """
+        The constructor for Node class.
+
+        Parameters:
+            key (int): Unique key to access node.
+            value (var): Value held in node, can be of any type.
+        """
+
         self.key = key
         self.value = value
         self.left_child = None
         self.right_child = None
         self.parent = None
         self.height = 0
-        #self.balance_factor = 0
 
 class BST:
-    '''Binary Search Tree class contains methods to provide public functionality of 
-        put, get, and delete. The integrety of the tree is maintained through AVL
-        balancing methods'''
+    """
+    A class containing methods to put, find and delete nodes in a binary search tree
+    while maintaing a balance factor of less than or equal to 1
+
+    Attributes:
+        root (node): A reference to the root node of the AVL BST.
+        size (int): A count of the number of items in thte AVL BST.
+
+    Public Methods:
+        put(key, value): Adds a node to the AVL BST.
+        get(key): Retrieves a node in teh AVL BST.
+        delete(key): Removes a node from the AVL BST. 
+    """
+    
     def __init__(self):
+        """The constructor for the BST class."""
         self.root = None
         self.size = 0
+
 
     # ===================================================================================
     # ==================PUT METHODS TO INSERT A KEY, VALUE PAIR INTO BST=================
 
     def put(self, key, value):
-        '''inserts key, value pair into the BST by ways of the _put helper function'''
-        # Create new node:
+        """
+        Method to add key, value pair to AVL BST.
+
+        Parameters:
+            key (int): Unique key to access node.
+            value (var): Value held in node, can be of any type. 
+        """
+
         new_node = Node(key, value)
 
         # Case 1. The BST is empty. Create node and add it to the root property.
@@ -47,58 +84,74 @@ class BST:
         self.size += 1
 
     def _put(self, new_node, current_node):
-        '''Recursively traverse BST to find insertion point for new node. Once found,
-            as the recursive function unwinds, update the balance factor at each node.
-            Note: if node keys are equal, the node will be a left child of the already
-            placed node'''
-        # Determine path:
-        #print(f'Comparing {new_node.key} to {current_node.key}')
+        # Helper method to the public put method.
+        #
+        # Recursively traverses BST to find insertion point for new node based on key.
+        # Updates node heights, checking balance factor and rebalancing on unwind.
+        #
+        # Note: If node keys are equal, the node will be a left child of the already 
+        #       placed node.
+        
+        # Determine path
         if new_node.key <= current_node.key:
             if current_node.left_child == None:
                 new_node.parent = current_node
                 current_node.left_child = new_node
-                print(f'Adding {new_node.key} as left child of {current_node.key}')
-            else:
-                
+            else:                
                 self._put(new_node, current_node.left_child)
         else:
             if current_node.right_child == None:
                 new_node.parent = current_node
                 current_node.right_child = new_node
-                print(f'Adding {new_node.key} as right child of {current_node.key}')
             else:
                 self._put(new_node, current_node.right_child)
         
         # Update height and check balance factor on unwind
         self.update_node_height(current_node)
         
-        #print(f'BF({current_node.key}) = {self.get_balance_factor(current_node)}')
         if self.get_balance_factor(current_node) > 1:
-            print(f'rebalancing Key: {current_node.key}, Value: {current_node.value}')
             self.rebalance(current_node)
 
     
     # ===================================================================================
     # =================GET METHODS TO RETRIEVE A KEY, VALUE PAIR FROM BST================
 
-    def get(self, target_key):
-        '''Find node by key and return value'''
+    def get(self, key):
+        """
+        Method to retrieve node based on key.
+        
+        Parameters:
+            key(int): Key value of node to be retrieved.
+        
+        Returns:
+            Node object if found
+            None if not found
+        """
+
         if self.root:
-            return self._get(target_key, self.root)
+            return self._get(key, self.root)
        
         return None
     
-    # NEEDS TESTING BELOW
-
-    def _get(self, target_key, current_node):
+    def _get(self, key, current_node):
+        # Helper method to the public get method.
+        #
+        # Recursively traverses AVL BST looking for target key. Returns node if found.
+        # 
+        # Parameters:
+        #   key(int): Key value of node to be retrieved.  
+        #
+        # Returns:
+        #   Node object if found
+        #   None if not found
         if current_node == None:
             return None
-        elif current_node.key == target_key:
+        elif current_node.key == key:
             return current_node
-        elif current_node.key > target_key:
-            return self._get(target_key, current_node.left_child)
+        elif current_node.key > key:
+            return self._get(key, current_node.left_child)
         else:
-            return self._get(target_key, current_node.right_child)
+            return self._get(key, current_node.right_child)
     
 
     # ===================================================================================
