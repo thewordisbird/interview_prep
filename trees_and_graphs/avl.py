@@ -2,7 +2,7 @@
 from collections import deque
 
 # TODO:
-#   -Add comments for methods from delete down
+#   -Add comments for methods from traverse down
 #   -Make distributable package
 
 class Node:
@@ -134,7 +134,7 @@ class BST:
         return None
     
     def _get(self, key, current_node):
-        # Helper method to the public get method.
+        # Private method to the public get method.
         #
         # Recursively traverses AVL BST looking for target key. Returns node if found.
         # 
@@ -158,11 +158,27 @@ class BST:
     # ================DELETE METHODS TO REMOVE A KEY, VALUE PAIR FROM BST================
 
     def delete(self, key):
+        """
+        Method to delete node given key.
+
+        Parameters:
+            key(int): key value of node to be retrieved.
+
+        Raises:
+            KeyError: key not found.
+        """
+        # Dependencies:
+        #   find_successor:
+        #   rebalance_after_delete:
+        #   splice:
+        #   insert_successor
+
         node_to_remove = self._get(key, self.root)
         if node_to_remove is None:
             raise KeyError('Key not found in tree.')
         else:
             successor = self.find_successor(node_to_remove)
+            
             # Case 1. Node is a leaf or single root
             if successor is None:
                 if node_to_remove.parent:
@@ -170,8 +186,7 @@ class BST:
                         node_to_remove.parent.left_child = None
 
                         # Rebalance after deletion
-                        self.rebalance_after_delete(node_to_remove.parent)
-    
+                        self.rebalance_after_delete(node_to_remove.parent)    
                     else:
                         node_to_remove.parent.right_child = None
                 else:
@@ -194,8 +209,19 @@ class BST:
             self.size -= 1
 
     def find_successor(self, node):
-        '''Finds and returns the appropriate successor node depending
-            on the position of the node being deleted''' 
+        # Private method to find the right branch successor of any node in the AVL BST.
+        #
+        # The successor is the lowest valued key in the right branch of the node.
+        #
+        # Parameters:
+        #   node(node): node object to find the successor of.
+        # 
+        # Returns:
+        #   node(node): successor node.
+        #
+        # Dependencies:
+        #   find_min:
+
         # Case 1 Node has no children       
         if not node.left_child and not node.right_child:         
             return None      
@@ -214,18 +240,27 @@ class BST:
                 return node.right_child
 
     def find_min(self, node):
-        '''Returns the minimum node in a subtree rooted with the 
-            instance node'''
+        # Private method to find the node with the minimum key value in a branch.
+        #
+        # Parameters:
+        #   node(node): node object local root of branch to search.
+        #
+        # Returns:
+        #   node(node): node object of minimum node in branch.
+
         current_node = node
         while current_node.left_child:
-            print(f'visiting {current_node.key}')
-            current_node = current_node.left_child
-            
+            current_node = current_node.left_child            
+        
         return current_node
 
     def splice(self, node):
-        '''Removes all refrences to the successor node and re-directs 
-            relatives to the appropriate node'''
+        # Private method to splice node out of tree by removing all refrences to
+        # and from the node.
+        #
+        # Parameters:
+        #   node(node): node object to splice from AVL BST.
+      
         # Case 1. node is a leaf.
         if not node.left_child and not node.right_child:
             if node == node.parent.left_child:
@@ -233,10 +268,10 @@ class BST:
             else:
                 node.parent.right_child = None
 
-        # Case 2. node has child. Note: successor node will
-        #   never have a left child since the successor node is the min key
-        #   value in a sub-tree. But since splice is also used to delete a node
-        #   with only one child, the following code handles both children cases
+        # Case 2. node has child. 
+        #   Note: successor node will never have a left child since the successor 
+        #   node is the min key value in a sub-tree. But since splice is also used 
+        #   to delete a node with only one child, the following code handles both children cases
         else:
             if node.left_child:
                 if node == node.parent.left_child:
@@ -257,10 +292,12 @@ class BST:
                 node.right_child.parent = node.parent
     
     def insert_successor(self, successor_node, deleted_node):
-        '''replaces the successor node pointers with those of the deleted node.
-            in effect de-refrenceing the deleted node and inserting the successor
-            node in its place. This is only used in when the deleted node has
-            both children'''
+        # Private method to replace a node in AVL BST.
+        #
+        # Parameters:
+        #   successor_node(node): node to be inserted.
+        #   deleted_node(node): node to be replaced.
+        
         # Set parent node references
         successor_node.parent = deleted_node.parent
         if deleted_node.parent:
@@ -287,9 +324,11 @@ class BST:
     # =======REBALANCE METHODS TO REBALANCE BST AFTER INSERT OR DELETION OF A NODE======= 
     
     def update_node_height(self, node):
-        '''Updates a single node's height.'''
-        # Used in _put() method to update node height on unwinde
-
+        # Private method to update a single nodes height
+        #
+        # Parameters:
+        #   node(node): node to calculate height of.
+        
         if node.left_child and node.right_child:
             node.height = 1 + max(node.left_child.height, node.right_child.height)
         elif node.left_child:
@@ -299,26 +338,28 @@ class BST:
         else:
             node.height = 0
 
-
     def update_parent_node_heights(self, node):
-        '''Climbs up tree from node to parent, updateing heights along the way'''
-        # Used after rebalance to update node heights affected by action
+        # Private method to update nodes in a branch from the parameter node to the root.
+        #
+        # Parameters:
+        #   node(node): node to start height update from.
+        #
+        # Dependencies:
+        #   update_node_height
 
         while node != None:
-            if node.left_child and node.right_child:
-                node.height = 1 + max(node.left_child.height, node.right_child.height)
-            elif node.left_child:
-                node.height = 1 + node.left_child.height
-            elif node.right_child:
-                node.height = 1 + node.right_child.height
-            else:
-                node.height = 0
-            
+            self.update_node_height(node)            
             node = node.parent
-        
-
+    
     def get_balance_factor(self, node):
-        '''Returns the balance factor at the node'''
+        # Private method to calculate the balance factor at a given node
+        #
+        # Parameters:
+        #   node(node): node to claculate balance factor for.
+        #
+        # Returns:
+        #   balance_factor(int): calculated balance factor.
+
         if node.left_child and node.right_child:
             balance_factor = abs(node.left_child.height - node.right_child.height)        
         elif node.left_child:
@@ -332,7 +373,16 @@ class BST:
 
 
     def rebalance(self, node):
-        '''Maps correct rotations sequence to correct imbalance'''
+        # Private method to determine the rotation sequence to rebalance AVL BST.
+        #
+        # Parameters: 
+        #   node(node): local root to rebalance 
+        # 
+        # Dependencies:
+        #   right_rotation:
+        #   left_rotation
+        #   update_parent_node_heights:
+        
         # Node has both children:
         if node.left_child and node.right_child:
             # Case 1. Left branch is heavy
@@ -442,10 +492,16 @@ class BST:
         # Update parent heights
         self.update_parent_node_heights(node)
 
-    
     def left_rotation(self, node):
+        # Private method to perform left roationa about root node
+        #
+        # Parameters:
+        #   node(node): node to perform rotation about
+        #
+        # Dependencies:
+        #   update_node_height:
+        
         new_root = node.right_child
-        print(f'left rotation about {node.key}')
         # Set new_roots' parent to node's parent
         if node.parent:
             new_root.parent = node.parent
@@ -470,25 +526,20 @@ class BST:
         node.parent = new_root
 
         # Update heights
-        if node.right_child and node.left_child:
-            node.height = 1 + max(node.left_child.height, node.right_child.height)
-        elif node.right_child:
-            node.height = 1 + node.right_child.height
-        elif node.left_child:
-            node.height = 1 + node.left_child.height
-        else:
-            node.height = 0
-
-        if new_root.left_child and new_root.right_child:
-            new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
-        elif new_root.left_child:
-            new_root.height = 1 + new_root.left_child.height
-        elif new_root.right_child:
-            new_root.height = 1 + new_root.right_child.height
+        self.update_node_height(node)
+        self.update_node_height(new_root)
+        
         
     def right_rotation(self, node):
-        new_root = node.left_child
-        print(f'right rotation about {node.key}')
+        # Private method to perform right roationa about root node
+        #
+        # Parameters:
+        #   node(node): node to perform rotation about
+        #
+        # Dependencies:
+        #   update_node_height:
+
+        new_root = node.left_child        
         # Set new_roots' parent to node's parent
         if node.parent:
             new_root.parent = node.parent
@@ -512,26 +563,24 @@ class BST:
         node.parent = new_root
 
         # Update heights
-        if node.right_child and node.left_child:
-            node.height = 1 + max(node.left_child.height, node.right_child.height)
-        elif node.right_child:
-            node.height = 1 + node.right_child.height
-        elif node.left_child:
-            node.height = 1 + node.left_child.height
-        else:
-            node.height = 0
-
-        if new_root.left_child and new_root.right_child:
-            new_root.height = 1 + max(new_root.left_child.height, new_root.right_child.height)
-        elif new_root.left_child:
-            new_root.height = 1 + new_root.left_child.height
-        elif new_root.right_child:
-            new_root.height = 1 + new_root.right_child.height
+        self.update_node_height(node)
+        self.update_node_height(new_root)
 
 
     def rebalance_after_delete(self, node):
-        '''Climbs tree from deleted node's parent to root. Evaluates height and checks
-            balance factor. Reblances if necessary.'''
+        # Private method to check and trigger rebalance tree after a node is deleted
+        #
+        # Evaluates height and evaluates balance factor at each node as it climbs from
+        # starting paramater node.
+        #
+        # Parameters:
+        #   node(node): starting node for rebalance evaluation.
+        #
+        # Dependencies:
+        #   update_node_height:
+        #   get_balance_factor:
+        #   rebalance
+
         while node:
             self.update_node_height(node)
             if self.get_balance_factor(node) > 1:
@@ -593,6 +642,7 @@ class BST:
             self._post_order_traversal(node.left_child, map)
             self._post_order_traversal(node.right_child, map)
             map[node] = {'left': node.left_child, 'right': node.right_child}
+
 
     
 
