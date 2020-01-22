@@ -3,7 +3,6 @@
 # Brute force recursive solution:
 def make_change_1(coins, value):
     # Naive recursive solution
-    print(f'make_change_1({coins}, {value})')
     if value == 0:
         return 0
 
@@ -15,7 +14,6 @@ def make_change_1(coins, value):
 
 def make_change_2(coins, value, cache={}):
     # Memoized recursive solution
-    print(f'make_change_2({coins}, {value})')
     if value == 0:
         return 0
     
@@ -32,28 +30,32 @@ def make_change_2(coins, value, cache={}):
 def make_change_3(coins, value):
     # Bottom up
     result = []
-    for i in range(len(coins)):
+    for i,c in enumerate(coins):
         result_row = []
         for j in range(value + 1):
-            if j == 0:
+            if i == 0 and c > j:
                 result_row.append(0)
-            elif coins[i] > j and i < 1:
-                result_row.append(0)
-            elif coins[i] > j: 
+            elif i == 0:
+                result_row.append(1 + result_row[j-c])
+            elif c > j:
                 result_row.append(result[i-1][j])
-            elif coins[i] <= j and i == 0:
-                result_row.append(1 + result[i][j-coins[i]])
             else:
-                result_row.append(min(1 + result[i][j-coins[i]], result_row[i-1][j]))
+                result_row.append(min(result[i-1][j], 1 + result_row[j-c]))
         result.append(result_row)
 
-    return result
+    return result[i][j]
 
 
 
 
 if __name__ == "__main__":
     coins = [1, 2, 4, 7, 13] 
-    value = 200
+    value = 32
+    print('Naive Recursive Method:')
+    print(make_change_1(coins, value))
+    
+    print('Top-Down Dynamic Programming')
+    print(make_change_2(coins, value))
 
+    print('Bottom-Up Dynamic Programming')
     print(make_change_3(coins, value))
