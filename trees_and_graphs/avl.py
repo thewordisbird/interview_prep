@@ -315,9 +315,6 @@ class BST:
 
         successor_node.right_child = deleted_node.right_child
         deleted_node.right_child.parent = successor_node
-
-    def __delitem__(self, key):
-        self.delete(key) 
     
     
     # ===================================================================================
@@ -594,6 +591,12 @@ class BST:
     # =================================TRAVERSAL METHODS=================================       
     
     def breadth_first_traversal(self):
+        """
+        Method to traverse AVL BST in a breadth first order.
+        
+        Returns:
+            nodes(list): List of nodes values in tree.
+        """
         nodes = []
         q = deque()
         q.append(self.root)
@@ -605,46 +608,82 @@ class BST:
             if current_node.right_child:
                 q.append(current_node.right_child)
             
-            #print(f'Key: {current_node.key}, Value: {current_node.value}')
             nodes.append(current_node.value)
-
         return nodes
 
     def pre_order_traversal(self):
+        """
+        Method for pre-order traversal of AVL BST.
+
+        Returns:
+            map(dict): dictionary of nodes with their left and right children
+        """
+        # Dependencies:
+        #   _pre_order_traversal:
+
         map = {}
         self._pre_order_traversal(self.root, map)
         return map
 
     def _pre_order_traversal(self, node, map):
+       # Private method to recursively traverse AVL BST in pre-order fashion.
+
         if node:
             map[node] = {'left': node.left_child, 'right': node.right_child}
             self._pre_order_traversal(node.left_child, map)
             self._pre_order_traversal(node.right_child, map)
 
     def in_order_traversal(self):
+        """
+        Method for in-order traversal of AVL BST.
+
+        Returns:
+            map(dict): dictionary of nodes with their left and right children
+        """
         map = {}
         self._in_order_traversal(self.root, map)
         return map
 
     def _in_order_traversal(self, node, map):
+        # Private method to recursively traverse AVL BST in in-order fashion.
         if node:
             self._in_order_traversal(node.left_child, map)
             map[node] = {'left': node.left_child, 'right': node.right_child}
             self._in_order_traversal(node.right_child, map)
 
     def post_order_traversal(self):
+        """
+        Method for post-order traversal of AVL BST.
+
+        Returns:
+            map(dict): dictionary of nodes with their left and right children
+        """
         map = {}
         self._post_order_traversal(self.root, map)
         return map
 
     def _post_order_traversal(self, node, map):
+        # Private method to recursively traverse AVL BST in post-order fashion.
         if node:
             self._post_order_traversal(node.left_child, map)
             self._post_order_traversal(node.right_child, map)
             map[node] = {'left': node.left_child, 'right': node.right_child}
 
 
-    
+    # ===================================================================================
+    # =================================TRAVERSAL METHODS=================================   
+    def __delitem__(self, key):
+        """Overide for __delitem__ built in method."""
+        self.delete(key) 
+
+    def __repr__(self):
+        """Override for __repr__ built in method."""
+        bst_map = self.pre_order_traversal()
+        return f'BST: {{k.key:k.value for k in bst_map}}'
+
+    def __iter__(self):
+        """Override for __iter__ built in method."""
+        pass
 
         
 
