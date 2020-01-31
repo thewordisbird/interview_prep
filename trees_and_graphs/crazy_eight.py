@@ -17,7 +17,10 @@ class Hand:
         self.cards.append(Card(number, suit))
 
     def make_graph(self):
+        last_non_wild = None
         for i, card in enumerate(self.cards):
+            if card.number != 8:
+                last_non_wild = card
             for j in range(i+1, len(self.cards)):
                 if card.number == 8 or self.cards[j] == 8 or card.number == self.cards[j].number or card.suit == self.cards[j].suit:
                     card.add_neighbor(self.cards[j])
