@@ -25,3 +25,4 @@ def _divisor_game(N, player, cache):
 if __name__ == "__main__":
     N = 5
     print(divisor_game(N))
+
