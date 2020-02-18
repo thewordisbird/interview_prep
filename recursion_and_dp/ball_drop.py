@@ -49,8 +49,8 @@ def ball_drop_2(arr):
     # Topological order from bottom to top, right to left. 
     # This will give the final answer as dp[0][0]
 
-    # This is a more elegant solution since you don't need as many edge cases
-    # and the answer doesn't require an extra function call.
+    # This is a better solution since you don't need as many edge cases
+    # and the answer doesn't require an extra max function call.
 
     dp = [[0 for j in range(len(arr))] for i in range(len(arr))]
 
