@@ -1,7 +1,6 @@
 def nocross(a,b):
     dp = []
-    for i in range(len(a)):
-    
+    for i in range(len(a)):    
         if i == 0:
             connection = nearest_connection(a[i], b)
         else:
@@ -9,8 +8,8 @@ def nocross(a,b):
 
         if connection != None:
             dp.append(connection)
-
     return len(dp)
+
 
 def nearest_connection(a, arr_b, greater_than=-1):
     for i in range(greater_than + 1, len(arr_b)):
