@@ -26,6 +26,9 @@ def hopscotch(board):
 
 
 def sum_valid_paths(board, dp, i, j):
+    # Sums the total number of paths to point (i, j) by looking if the value of the point
+    # is not equal to the value of the destination point. In that case it adds that sum
+    # to the sum variable.
     sum = 0
     for x in range(i):
         for y in range(j):
