@@ -1,25 +1,36 @@
-def longest_mod_subset(nums, cache={}):
-    if len(nums) > 1:
+def lms(nums):
+    cache = {}
 
-        for i, num in enumerate(nums):
-            if num in cache:
-                return caceh[num]
-            result = []
-            subset = []
-
-            for j in range(i+1, len(nums)):
-                if nums[j] % num == 0:
-                    subset.append(nums[j])
-            
-            # need max for recursions
-            valid_subset = [num]
-            lms = max(longest_mod_subset()) 
-            lms = longest_mod_subset(subset, cache)
-
-            if num in cache and lms > cache[num] or num not in cache:
-                cache[num] = lms
-
-        return subset
-    else:
-        return nums[0]
+    for i, num in enumerate(nums):
+        if num not in cache:
+            _lms(nums[i+1:], num, cache)
     
+    return cache
+
+def _lms(nums, mod, cache):
+    if len(nums) > 0:
+        if mod in cache:
+            return cache[mod]
+        else:
+            cache[mod] = [mod]
+        
+        subset = []
+        for num in nums:
+            if num%mod == 0:
+                subset.append(num)
+        print(mod, nums)
+        
+        result=[]
+        for i, n in enumerate(subset):
+            mod_list = _lms(subset[i+1:], n, cache)
+            if len(mod_list) > len(result):
+                result.append(mod_list)
+        cache[mod] = cache[mod] + result
+
+        return cache[mod]
+    return []
+
+if __name__ == "__main__":
+    nums = [3, 5, 10, 15, 20, 21]
+
+    print(lms(nums))
