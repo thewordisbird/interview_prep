@@ -42,15 +42,23 @@ class MinHeap:
                 self.heapify_up(i)
 
     def extract_min(self):
-        min_node = self.heap[0]
-        self.heap[0] = self.heap.pop()
-        self.heapify_down()
+        
+        if len(self.heap) > 1:
+            min_node = self.heap[0]
+            self.heap[0] = self.heap.pop()
+            self.heapify_down()
+        else:
+            min_node = self.heap.pop()
+
         return min_node.key, min_node.value
 
     def heapify_down(self):
         node_index = 0
+        #print(len(self.heap), self.has_children(node_index))
         while self.has_children(node_index):
+            #print(node_index, len(self.heap))
             min_child_index = self.get_min_child_index(node_index)
+            #print(node_index, min_child_index)
             if self.heap[node_index].value > self.heap[min_child_index].value:
                 # swap child and node
                 self.heap[min_child_index], self.heap[node_index] = self.heap[node_index], self.heap[min_child_index]
@@ -68,6 +76,11 @@ class MinHeap:
             node_index = parent_index
             parent_index = self.get_parent_index(node_index)
 
+    def get_distance(self, key):
+        for i, n in enumerate(self.heap):
+            if n.key == key:
+                return  n.value
+                
 
     def get_parent_index(self, node_index):
         return (node_index - 1) // 2
@@ -81,14 +94,15 @@ class MinHeap:
     def get_min_child_index(self, node_index):
         if self.has_children(node_index):
             min_child_index = self.get_left_child_index(node_index)
-            if min_child_index != len(self.heap) - 1 and self.heap[min_child_index].value > self.heap[self.get_right_child_index(node_index)].value:
+            if min_child_index < len(self.heap) - 1 and self.heap[min_child_index].value > self.heap[self.get_right_child_index(node_index)].value:
                 min_child_index = self.get_right_child_index(node_index)
-
+            return min_child_index
+            
     def has_parent(self, node_index):
         return self.get_parent_index(node_index) >= 0
 
     def has_children(self, node_index):
-        return self.get_left_child_index(node_index) >= len(self.heap)
+        return self.get_left_child_index(node_index) < len(self.heap) 
         
 def dijkstra_heap(g, s):
     processed = {}
@@ -96,18 +110,20 @@ def dijkstra_heap(g, s):
     for n in g.adjacency_list:
         not_processed.insert(n, float('inf'))
 
+    #print(not_processed.heap)
     not_processed.decrease_key(s, 0)
 
-    while not not_processed.is_empty:
+    while not not_processed.is_empty():
         node, distance = not_processed.extract_min()
+        #print(node, distance)
         processed[node] = distance
 
         # Relax edges from node and evaluate path distance
         for n,w in g.adjacency_list[node].items():
             if n not in processed:
-                d = distance + w
-                if d < not_processed[n]:
-                    not_processed[n] = d
+                d = not_processed.get_distance(n)
+                if distance + w < d:
+                    not_processed.decrease_key(n, distance + w)
 
     return processed
 
@@ -171,6 +187,5 @@ if __name__ == "__main__":
     g.add_edge('E', 'D', 9)
 
     #print(g.adjacency_list)
-    #print(dijkstra_array(g,'A'))
-    # Heap implementation not working
+    print(dijkstra_array(g,'A'))
     print(dijkstra_heap(g,'A'))
