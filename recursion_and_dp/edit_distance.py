@@ -3,7 +3,7 @@
 #   - Delete: S[i]
 #   - Replace: S[i] with S'[j]
 
-# These operations con be weighted with a cost to modify the outcome depending on the circumstances of the problem at hand.
+# These operations can be weighted with a cost to modify the outcome depending on the circumstances of the problem at hand.
 # For example finding minimum edit distance, each operation would be weighted at a cost of 1. This will return the
 # minimum number of changes using those operations
 #
