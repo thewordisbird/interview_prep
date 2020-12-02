@@ -24,14 +24,21 @@
 # 5) Solution: Maintain a seprate table of breakpoints for every str[i,j]. 
 
 def text_justification(words, n):
+    # Table to store badness values to determine breaks
     dp = [[0 for j in range(len(words))] for i in range(len(words))]
+    # Table to store breaks
     b = [[None for j in range(len(words))] for i in range(len(words))]
+    
+    # Iterate over the number of words to use on each line.
     for l in range(1, len(words) + 1):
-        
+        # i is the index of the first word on the line        
         for i in range(len(words) - l + 1):
+            # j is the index for the word we are deciding should be added to the
+            # current line or where a break should occur.
             j = i + l -1
             dp[i][j] = cost(words, n, i, j)
             b[i][j] = j
+            # Store the min badness and the break associated with it
             q = float('inf')
             x = j
             for k in range(i, j):
@@ -43,6 +50,10 @@ def text_justification(words, n):
                 dp[i][j] = q
                 b[i][j] = x
     return dp, b
+
+def text_justification_recurssion(words, i, j, n):
+    if cost(words, n, i, j) < float('inf'):
+        
 
 def cost(words, n, i, j):
     chars = 0
