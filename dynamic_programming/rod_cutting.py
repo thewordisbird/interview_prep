@@ -31,7 +31,7 @@
 #     We need to evaluate all options so we will evaluate the solutions to both
 #     options and compare them.
 
-# 3a) Determine the recurssion:
+# 3) Relate subproblem solutions: Determine the recurssion:
 #     i is the length of the rod being evaluated
 #     L is the total length 
 #     dp(i) = max(
@@ -60,7 +60,7 @@ def recursive_solution(i, pi):
                 )
     return q
 
-# 3b) Memoize the recursive solution to optimize by avoiding recalculations
+# 4a) Memoize the recursive solution to optimize by avoiding recalculations
 def memoized_solution(i, pi, memo):
     ''' Memoized solution to the rod-cutting problem. Adds a memo table
         to keep track of optimal values for each cut lenght to avoid
@@ -90,7 +90,7 @@ def memoized_solution(i, pi, memo):
     memo[i] = q
     return q
 
-# 4) Determine the solution to the problem.
+# 5a) Determine the solution to the problem.
 #   At what lengths do we cut the pipe to optimize
 class Solution:
     def __init__(self, N, pi):
@@ -154,7 +154,7 @@ class Solution:
         
         return cuts
 
-# 5) Construct a bottom up solution
+# 4b) Construct a bottom up solution
 def bottom_up(N, pi):
     dp = [0 for x in range(N+1)]
     cut = [0 for x in range(N+1)]
@@ -170,7 +170,19 @@ def bottom_up(N, pi):
         dp[i] = q
         cut[i] = c
     
-    return dp[N], cut[N]
+    return dp[N], cut
+
+# 5b) Solve the original problem
+def bottom_up_solution(N, cut):
+    cuts = []
+    l = N
+    while l > 0:
+        cuts.append(cut[l])
+        l = l - cut[l]
+
+    return cuts
+
+
 
 if __name__ == "__main__":
     N = 10
@@ -197,7 +209,8 @@ if __name__ == "__main__":
     print(f"\t{s.top_down_solution()}")
 
     print('Bottom-Up solution')
-    print(f"\t{bottom_up(8, pi)}")
+    dp, cut = bottom_up(N, pi)
+    print(f"\t{bottom_up_solution(N, cut)}")
     
 
     
