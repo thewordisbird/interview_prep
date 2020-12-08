@@ -1,6 +1,53 @@
-# Text Justification:
+# Text Justification Problem:
+
 # Given text, split the file into "good" lines that minimize excess spacing defined by a badness function for
 # a line with max width w.
+
+# Evaluation:
+# 1) Determine the subproblem and optimal substructure:
+#       For every string we would like to reduce the "badness" as it relates
+#       to the line width constraint: The subproblem being, giving str[i,j]
+#       determine where the break for the 1st line is
+
+# 2) Guess:
+#       In at every word, j for (i+1...n+1) the decision is weather to include
+#       the word at j in the same line or start a new line
+
+
+# 3) Recurrence:
+def recursive_solution(words, n, i, memo, new_line):
+    if i == len(words)-1:
+        return 0
+    if i in memo:
+        return memo[i]
+    qi = float('inf')
+    si = 0
+    print(f'Evaluating starting a line at {i}')
+    for j in range(i+1, len(words)):
+        badness = recursive_solution(words, n, j, memo, new_line) + cost(words, n, i, j-1)
+        if badness < qi:
+            qi = badness
+            si = j
+    
+    
+    
+    memo[i] = qi
+    new_line[i] = si
+    if i == 0:
+        print(memo)
+        print(new_line)
+    return qi
+
+
+
+
+
+
+
+
+
+
+
 
 # Solution Steps:
 # 1) Subproblem of optimal substructure: What is the optimal spacing for the suffix of the text, text[i:].
@@ -51,8 +98,6 @@ def text_justification(words, n):
                 b[i][j] = x
     return dp, b
 
-def text_justification_recurssion(words, i, j, n):
-    if cost(words, n, i, j) < float('inf'):
         
 
 def cost(words, n, i, j):
@@ -103,17 +148,23 @@ if __name__=="__main__":
                 """
     words = sentence.split()
     n = 100
-    r_a, r_b = text_justification(words, n)
+    # r_a, r_b = text_justification(words, n)
     
-    print_neatly(words, r_b)
+    # print_neatly(words, r_b)
     
-    # View tables:
-    view = False
-    if view == True:
-        for a in r_a:
-            print(a)
+    # # View tables:
+    # view = False
+    # if view == True:
+    #     for a in r_a:
+    #         print(a)
 
-        print('\n')
-        for b in r_b:
-            print(b)            
-    
+    #     print('\n')
+    #     for b in r_b:
+    #         print(b)    
+
+    short_sentence = """
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                """
+
+    s = recursive_solution(short_sentence.split(), 25, 0, {}, {})       
+    print(s) 
