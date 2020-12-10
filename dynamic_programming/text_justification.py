@@ -18,8 +18,10 @@
 def recursive_solution(words, n, i, memo, new_line):
     if i == len(words)-1:
         return 0
+    
     if i in memo:
         return memo[i]
+
     qi = float('inf')
     si = 0
     print(f'Evaluating starting a line at {i}')
@@ -28,16 +30,23 @@ def recursive_solution(words, n, i, memo, new_line):
         if badness < qi:
             qi = badness
             si = j
-    
-    
-    
+    print('start new line @: ', si)
     memo[i] = qi
-    new_line[i] = si
-    if i == 0:
-        print(memo)
-        print(new_line)
+    new_line[i]: si
     return qi
 
+# 4) Topological ordering for bottom up solution:
+def bottom_up(words, n):
+    dp = [[0 for x in range(len(words) + 1)] for y in range(len(words) + 1)]
+    nl = [[0 for x in range(len(words) + 1)] for y in range(len(words) + 1)]
+
+    for i in range(len(words), -1, -1):
+        dp[i][i] = cost(words, n, i, i)
+        qi = float('inf')
+        si = 0
+        for j in range(i+1, len(words)):
+            # j is the start of a new line
+            include = cost(words, n, i, j-1) + dp[i][j]
 
 
 
@@ -163,8 +172,8 @@ if __name__=="__main__":
     #         print(b)    
 
     short_sentence = """
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                    The quick brown fox jumps over the fence and runs away
                 """
 
-    s = recursive_solution(short_sentence.split(), 25, 0, {}, {})       
+    s = recursive_solution(short_sentence.split(), 10, 0, {}, {})       
     print(s) 
