@@ -15,25 +15,51 @@
 
 
 # 3) Recurrence:
-def recursive_solution(words, n, i, memo, new_line):
-    if i == len(words)-1:
-        return 0
+class Result:
+    def __init__(self, str, n):
+        self.score = {}
+        self.start_line = {}
+        self.words = str.split()
+        self.n = n
     
-    if i in memo:
-        return memo[i]
+    def solution(self):
+        self._solution(0)
+        print(self.start_line)
 
-    qi = float('inf')
-    si = 0
-    print(f'Evaluating starting a line at {i}')
-    for j in range(i+1, len(words)):
-        badness = recursive_solution(words, n, j, memo, new_line) + cost(words, n, i, j-1)
-        if badness < qi:
-            qi = badness
-            si = j
-    print('start new line @: ', si)
-    memo[i] = qi
-    new_line[i]: si
-    return qi
+    def _solution(self, i):
+        
+        if i in self.score: return self.score[i]
+        print('evaluating start line at', i)
+        if i == len(self.words) - 1:
+            self.score[i] = self.cost(self.words[i:])
+            self.start_line[i] = len(self.words)
+            return self.score[i]
+
+        q = self.cost(self.words[i:])
+        b = len(self.words)
+        for j in range(i+1, len(self.words)):
+            
+            score = self.cost(self.words[i:j]) + self._solution(j)
+            if score < q:
+                q = score
+                b = j
+        self.score[i] = q
+        self.start_line[i] = b
+        return q
+
+    def cost(self, words):
+        chars = 0
+        spaces = len(words) - 1
+
+        for x in range(len(words)):
+            chars += len(words[x])
+        
+        tot_chars = chars+spaces
+
+        if tot_chars <= self.n:
+            return (self.n - tot_chars) ** 3
+        else:
+            return float('inf')
 
 # 4) Topological ordering for bottom up solution:
 def bottom_up(words, n):
@@ -109,10 +135,11 @@ def text_justification(words, n):
 
         
 
-def cost(words, n, i, j):
+def cost(words, n):
     chars = 0
-    spaces = j - i
-    for x in range(i, j+1):
+    spaces = len(words) - 1
+
+    for x in range(len(words)):
         chars += len(words[x])
     
     tot_chars = chars+spaces
@@ -172,8 +199,14 @@ if __name__=="__main__":
     #         print(b)    
 
     short_sentence = """
-                    The quick brown fox jumps over the fence and runs away
+                    Sagittis purus sit amet volutpat consequat mauris nunc. Ac ut consequat semper viverra nam libero justo laoreet. Luctus venenatis lectus magna fringilla urna. Vitae semper quis lectus nulla at volutpat diam. Montes nascetur ridiculus mus mauris. 
+                    Aliquet lectus proin nibh nisl condimentum.
                 """
 
-    s = recursive_solution(short_sentence.split(), 10, 0, {}, {})       
-    print(s) 
+    # s = recursive_solution(short_sentence.split(), 10, 0)       
+    # print(s) 
+
+    r = Result(short_sentence, 100)
+    print('cost', r.cost(['this']))
+    r.solution()
+    
